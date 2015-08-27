@@ -10,12 +10,19 @@ running the program. These are the expected environmental variables (case
 sensitive):
 
 BBWEBCORE_SFDCVERSION (ex. "v32.0")
+
 BBWEBCORE_SFDCCLIENTID (can be found in your SFDC Connected App settings)
+
 BBWEBCORE_SFDCCLIENTSECRET (can be found in your SFDC Connected App settings)
+
 BBWEBCORE_SFDCUSERNAME
+
 BBWEBCORE_SFDCPASSWORD
+
 BBWEBCORE_SFDCTOKEN
+
 BBWEBCORE_SFDCENVIRONMENT (use either "sandbox" or "production")
+
 */
 package salesforce
 
