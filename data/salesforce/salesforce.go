@@ -54,9 +54,17 @@ type SFDCResponse struct {
 	Success      bool   `force:"success,omitempty"`
 }
 
+//SFDCQueryResponse contains the SalesForce response after a query.
+type SFDCQueryResponse struct {
+	Done           bool    `json:"Done" force:"done"`
+	TotalSize      float64 `json:"TotalSize" force:"totalSize"`
+	NextRecordsUri string  `json:"NextRecordsUrl" force:"nextRecordsUrl"`
+}
+
 type sfdcClient interface {
 	GetSFDCObject(id string, obj interface{}) (err error)
 	GetSFDCObjectByExternalID(id string, obj interface{}) (err error)
+	QuerySFDCObject(query string, obj interface{}) (err error)
 	InsertSFDCObject(object interface{}) (resposne SFDCResponse, err error)
 	UpsertSFDCObjectByExternalID(id string, obj interface{}) (err error)
 }
@@ -84,6 +92,11 @@ func (f forceClient) GetSFDCObjectByExternalID(id string, obj interface{}) (err 
 	}
 
 	err = f.GetSObjectByExternalId(id, sobject)
+	return err
+}
+
+func (f forceClient) QuerySFDCObject(query string, obj interface{}) (err error) {
+	err = f.Query(query, obj)
 	return err
 }
 

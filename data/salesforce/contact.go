@@ -13,6 +13,13 @@ type SFDCContact struct {
 	services.ContactDTO
 }
 
+//SFDCContactQueryResponse contains the response for contact queries.
+type SFDCContactQueryResponse struct {
+	SFDCQueryResponse
+
+	Records []*SFDCContact `json:"Records" force:"records"`
+}
+
 //ApiName is the SFDC ApiName of the Contact object.
 func (s SFDCContact) ApiName() string {
 	return "Contact"
@@ -23,7 +30,7 @@ func (s SFDCContact) ExternalIdApiName() string {
 	return "Username"
 }
 
-//GetContact returns a Salesforce contact for the ID specified.
+//GetContact returns a Salesforce contact given an SFDC ID or a BBAuthID.
 func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	contact := &SFDCContact{}
 	contactLookupFunc, err := a.getForceAPIContactLookupFunction(id)
@@ -33,7 +40,7 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	}
 
 	err = contactLookupFunc(contact)
-
+	fmt.Println(contact)
 	if err != nil {
 		return &contact.ContactDTO, fmt.Errorf("Error querying SFDC: %s \n", err)
 	}
@@ -44,6 +51,7 @@ func (a API) getForceAPIContactLookupFunction(id string) (func(*SFDCContact) err
 	if id == "" {
 		return nil, errors.New("id cannot be an empty string")
 	}
+
 	if len(id) == 15 || len(id) == 18 {
 		return func(contact *SFDCContact) error {
 			err := a.client.GetSFDCObject(id, contact)
@@ -51,8 +59,28 @@ func (a API) getForceAPIContactLookupFunction(id string) (func(*SFDCContact) err
 		}, nil
 	}
 
-	return nil, errors.New("SFDC Id's must be an alphanumeric string with a" +
-		"length of 15 or 18")
+	return func(contact *SFDCContact) error {
+		//Put the contact pointer into the inital Records slice to eliminate the need for a deep copy.
+		records := make([]*SFDCContact, 1)
+		records[0] = contact
+		queryResponse := &SFDCContactQueryResponse{Records: records}
+
+		query := ("SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+			"SFDC_Contact_Status__c, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+			"BBAuth_Last_Name__c FROM Contact WHERE BBAuthID__c = '" + id + "'")
+
+		err := a.client.QuerySFDCObject(query, queryResponse)
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if queryResponse.TotalSize > 0 {
+			err = errors.New("The ID provided did not resolve to any contact records.")
+		}
+		return err
+	}, nil
 }
 
 //CreateContact creates a new SFDC Contact.
