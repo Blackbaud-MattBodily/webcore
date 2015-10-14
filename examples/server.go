@@ -10,13 +10,35 @@ import (
 
 var api = salesforce.NewAPI()
 var service = services.AccountService{AccountRepo: api}
+var contactService = services.ContactService{ContactRepo: api}
 
 func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
-	getAccountExample()
+
+	getContactExample()
+	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getContactExample() {
+	//contact, err := contactService.GetContact("003d0000027LKPQ")
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("")
+	}
+
+	data, err := json.Marshal(contact)
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("")
+	}
+
+	fmt.Printf("Contact: %s", data)
+	fmt.Println("")
 }
 
 func getAccountExample() {
