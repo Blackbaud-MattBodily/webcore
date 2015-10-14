@@ -9,6 +9,7 @@ import (
 //ContactRepository is an interface for accessing Contact data
 type ContactRepository interface {
 	GetContact(id string) (*ContactDTO, error)
+	QueryContacts(query string) ([]*ContactDTO, error)
 	CreateContact(contact *entities.Contact) (id, name string, err error)
 	UpdateContact(contact *entities.Contact) error
 }
@@ -76,10 +77,26 @@ type ContactService struct {
 	ContactRepo ContactRepository
 }
 
-//GetContact returns a Contact by ID
+//GetContact returns a Contact by SFDC ID or BBAuthID
 func (cs *ContactService) GetContact(id string) (*ContactDTO, error) {
 	c, err := cs.ContactRepo.GetContact(id)
 	return c, err
+}
+
+//GetContactByEmail returns a contact from an email.
+func (cs *ContactService) GetContactByEmail(email string) (*ContactDTO, error) {
+	//TODO: This should probably be based on BBAuth_Email__c, but that field is not indexed yet.
+	query := ("SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c FROM Contact WHERE Email = '" + email + "'")
+	contacts, err := cs.ContactRepo.QueryContacts(query)
+
+	if err != nil {
+		return &ContactDTO{}, err
+	}
+
+	//TODO: Could probably do something more elegant than returning the first contact in the result slice.
+	return contacts[0], err
 }
 
 //CreateContact creates a new Contact

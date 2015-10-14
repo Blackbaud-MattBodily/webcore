@@ -13,7 +13,7 @@ type SFDCContact struct {
 	services.ContactDTO
 }
 
-//SFDCContactQueryResponse contains the response for contact queries.
+//SFDCContactQueryResponse wraps the base SFDCQueryResponse and attaches a slice of SFDCContact pointers which will be written into.
 type SFDCContactQueryResponse struct {
 	SFDCQueryResponse
 
@@ -40,11 +40,26 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	}
 
 	err = contactLookupFunc(contact)
-	fmt.Println(contact)
+
 	if err != nil {
 		return &contact.ContactDTO, fmt.Errorf("Error querying SFDC: %s \n", err)
 	}
 	return &contact.ContactDTO, nil
+}
+
+//QueryContacts returns a slice of SFDCContacts that represents the results of the SOQL query given.
+func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
+	queryResponse := &SFDCContactQueryResponse{}
+
+	err := a.client.QuerySFDCObject(query, queryResponse)
+	contacts := make([]*services.ContactDTO, len(queryResponse.Records))
+
+	//Mapping the returned slice of *SFDCContacts to a slice of *ContactDTOs
+	for index, dto := range queryResponse.Records {
+		contacts[index] = &dto.ContactDTO
+	}
+
+	return contacts, err
 }
 
 func (a API) getForceAPIContactLookupFunction(id string) (func(*SFDCContact) error, error) {
@@ -72,11 +87,10 @@ func (a API) getForceAPIContactLookupFunction(id string) (func(*SFDCContact) err
 		err := a.client.QuerySFDCObject(query, queryResponse)
 
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 
-		if queryResponse.TotalSize > 0 {
+		if queryResponse.TotalSize < 1 {
 			err = errors.New("The ID provided did not resolve to any contact records.")
 		}
 		return err
