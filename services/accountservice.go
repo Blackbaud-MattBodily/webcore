@@ -12,6 +12,7 @@ import (
 // AccountRepository is an inteface for accessing Account data
 type AccountRepository interface {
 	GetAccount(id string) (*AccountDTO, error)
+	QueryAccounts(query string) ([]*AccountDTO, error)
 	CreateAccount(account *entities.Account) (id string, siteID int, err error)
 	UpdateAccount(account *entities.Account) error
 }
@@ -166,6 +167,13 @@ func (as *AccountService) CreateAccount(a AccountDTO) (id string, siteID int, er
 
 	id, siteID, err = as.AccountRepo.CreateAccount(account)
 	return id, siteID, err
+}
+
+//QueryAccounts returns a slice of the accunts returned by the query.
+func (as *AccountService) QueryAccounts(query string) ([]*AccountDTO, error) {
+	accounts, err := as.AccountRepo.QueryAccounts(query)
+
+	return accounts, err
 }
 
 // UpdateAccount updatesn account

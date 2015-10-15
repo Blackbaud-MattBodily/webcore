@@ -15,6 +15,14 @@ type SFDCAccount struct {
 	services.AccountDTO
 }
 
+//SFDCAccountQueryResponse wraps the base SFDCQueryResponse and attaches a slice
+//of SFDCAccount pointers that will be written into
+type SFDCAccountQueryResponse struct {
+	SFDCQueryResponse
+
+	Records []*SFDCAccount `json:"Records" force:"records"`
+}
+
 // ApiName is the SFDC ApiName of the Account object
 func (s SFDCAccount) ApiName() string {
 	return "Account"
@@ -70,6 +78,22 @@ func (a API) getForceAPILookupFunction(id string) (func(*SFDCAccount) error, err
 	}
 
 	return nil, errors.New("id cannot be 0")
+}
+
+//QueryAccounts returns a slice of ContactDTO pointers that represent the
+//results of the given query.
+func (a API) QueryAccounts(query string) ([]*services.AccountDTO, error) {
+	queryResponse := &SFDCAccountQueryResponse{}
+
+	err := a.client.QuerySFDCObject(query, queryResponse)
+	accounts := make([]*services.AccountDTO, len(queryResponse.Records))
+
+	//Mapping the returned slice of *SFDCAccounts to a slice of *AccountDTOs
+	for index, dto := range queryResponse.Records {
+		accounts[index] = &dto.AccountDTO
+	}
+
+	return accounts, err
 }
 
 // CreateAccount creates a new SFDC Account and returns the Clarify Site ID
