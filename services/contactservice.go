@@ -99,6 +99,23 @@ func (cs *ContactService) GetContactByEmail(email string) (*ContactDTO, error) {
 	return contacts[0], err
 }
 
+//GetContacts returns all contact records associated with a given BBAuthID
+func (cs *ContactService) GetContacts(authID string) ([]*ContactDTO, error) {
+	query := ("SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c FROM Contact WHERE BBAuthID__c = '" + authID + "'")
+	contacts, err := cs.ContactRepo.QueryContacts(query)
+
+	return contacts, err
+}
+
+//QueryContacts returns all contact records that result from the given query.
+func (cs *ContactService) QueryContacts(query string) ([]*ContactDTO, error) {
+	contacts, err := cs.ContactRepo.QueryContacts(query)
+
+	return contacts, err
+}
+
 //CreateContact creates a new Contact
 func (cs *ContactService) CreateContact(c ContactDTO) (id, name string, err error) {
 	contact, err := c.toEntity()
