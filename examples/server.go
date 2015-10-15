@@ -23,7 +23,7 @@ func main() {
 }
 
 func getContactExample() {
-	//contact, err := contactService.GetContact("003d0000027LKPQ")
+	contact, err := contactService.GetContact("003d0000027LKPQ")
 
 	if err != nil {
 		fmt.Println(err)
