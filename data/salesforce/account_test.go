@@ -70,6 +70,10 @@ func (m mockClient) UpsertSFDCObjectByExternalID(id string, obj interface{}) (er
 	return getCommandError()
 }
 
+func (m mockClient) QuerySFDCObject(query string, obj interface{}) (err error) {
+	return nil
+}
+
 func TestAccountApiName(t *testing.T) {
 	Convey("Given an SFDCAccount object", t, func() {
 		account := SFDCAccount{}

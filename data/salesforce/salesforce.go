@@ -33,7 +33,7 @@ import (
 	"github.com/blackbaudIT/webcore/data/salesforce/Godeps/_workspace/src/github.com/spf13/viper"
 )
 
-//var forceAPI *force.ForceApi
+var viperSFDC = viper.New()
 
 // API provides access to SalesForce Data
 type API struct {
@@ -58,7 +58,7 @@ type SFDCResponse struct {
 type SFDCQueryResponse struct {
 	Done           bool    `json:"Done" force:"done"`
 	TotalSize      float64 `json:"TotalSize" force:"totalSize"`
-	NextRecordsUri string  `json:"NextRecordsUrl" force:"nextRecordsUrl"`
+	NextRecordsURI string  `json:"NextRecordsUrl" force:"nextRecordsUrl"`
 }
 
 type sfdcClient interface {
@@ -133,19 +133,19 @@ func (f forceClient) UpsertSFDCObjectByExternalID(id string, obj interface{}) (e
 }
 
 func getConfigSettings() {
-	viper.SetEnvPrefix("bbwebcore")
-	viper.AutomaticEnv()
+	viperSFDC.SetEnvPrefix("bbwebcore")
+	viperSFDC.AutomaticEnv()
 }
 
 func getForceAPIClient() *force.ForceApi {
 	forceAPI, err := force.Create(
-		viper.GetString("sfdcVersion"),
-		viper.GetString("sfdcClientId"),
-		viper.GetString("sfdcClientSecret"),
-		viper.GetString("sfdcUserName"),
-		viper.GetString("sfdcPassword"),
-		viper.GetString("sfdcToken"),
-		viper.GetString("sfdcEnvironment"),
+		viperSFDC.GetString("sfdcVersion"),
+		viperSFDC.GetString("sfdcClientId"),
+		viperSFDC.GetString("sfdcClientSecret"),
+		viperSFDC.GetString("sfdcUserName"),
+		viperSFDC.GetString("sfdcPassword"),
+		viperSFDC.GetString("sfdcToken"),
+		viperSFDC.GetString("sfdcEnvironment"),
 	)
 
 	if err != nil {

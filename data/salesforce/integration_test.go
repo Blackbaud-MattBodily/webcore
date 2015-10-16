@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/data/salesforce/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
-	"github.com/blackbaudIT/webcore/data/salesforce/Godeps/_workspace/src/github.com/spf13/viper"
 	"github.com/blackbaudIT/webcore/services"
 )
 
@@ -71,13 +70,13 @@ func TestInsertSFDCObjectByExternalID(t *testing.T) {
 
 	Convey("Given the required account fields", t, func() {
 		account := services.AccountDTO{
-			Name:            "Integration Testing Account",
+			Name:            "Integration Testing Account 2",
 			BusinessUnit:    "GMBU",
 			Industry:        "Cause & Cure",
 			ShippingStreet:  "123 Random St",
-			ShippingCity:    "Charleston",
-			ShippingState:   "SC",
-			ShippingZipCode: "29492",
+			ShippingCity:    "Charlotte",
+			ShippingState:   "NC",
+			ShippingZipCode: "28201",
 			ShippingCountry: "USA",
 		}
 		obj := SFDCAccount{account}
@@ -144,9 +143,9 @@ func TestInvalidConfig(t *testing.T) {
 	}
 
 	Convey("Given invalid configuration", t, func() {
-		viper.Set("sfdcUserName", "")
-		viper.Set("sfdcClientId", "")
-		viper.Set("sfdcClientSecret", "")
+		viperSFDC.Set("sfdcUserName", "")
+		viperSFDC.Set("sfdcClientId", "")
+		viperSFDC.Set("sfdcClientSecret", "")
 		Convey("When SFDC is accessed", func() {
 			f := func() { getForceAPIClient() }
 			Convey("Then the application should panic", func() {

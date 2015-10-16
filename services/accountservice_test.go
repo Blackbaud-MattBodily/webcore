@@ -45,6 +45,10 @@ func (m mockAccountRepository) CreateAccount(account *entities.Account) (id stri
 	return "001d000001TwuXwAAJ", 12345, nil
 }
 
+func (m mockAccountRepository) QueryAccounts(query string) ([]*AccountDTO, error) {
+	return []*AccountDTO{&accountDTO}, nil
+}
+
 func (m mockAccountRepository) UpdateAccount(account *entities.Account) error {
 	return nil
 }
