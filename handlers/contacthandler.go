@@ -1,0 +1,78 @@
+package handlers
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+
+	"github.com/blackbaudIT/webcore/services"
+	"github.com/gorilla/mux"
+)
+
+//ContactHandler holds a ContactRepository and uses it to respond to standard
+//http requests related to Contacts.
+type ContactHandler struct {
+	contactRepo services.ContactRepository
+}
+
+//NewContactHandler creates a new ContactHandler using a given ContactRepository.
+func NewContactHandler(repo services.ContactRepository) *ContactHandler {
+	return &ContactHandler{contactRepo: repo}
+}
+
+//GetContact responds to an HTTP request for a contact record. It's reliant on an "id" parameter being present in the request's vars.
+func (h *ContactHandler) GetContact(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	service := &services.ContactService{ContactRepo: h.contactRepo}
+	contact, err := service.GetContact(vars["id"])
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContact failed: %s", err)
+	}
+
+	data, err := json.Marshal(contact)
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContact failed to marshal result: %s", err)
+	}
+
+	w.Write(data)
+}
+
+//GetContactByEmail responds to an HTTP request for a contact record. It's reliant on an "email" parameter being present in the request's vars.
+func (h *ContactHandler) GetContactByEmail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	service := &services.ContactService{ContactRepo: h.contactRepo}
+	contact, err := service.GetContactByEmail(vars["email"])
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContactByEmail failed: %s", err)
+	}
+
+	data, err := json.Marshal(contact)
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContactByEmail failed to marshal result: %s", err)
+	}
+
+	w.Write(data)
+}
+
+//GetContacts responds to an HTTP request for all contact records associated with a given BBAuthID.
+func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	service := &services.ContactService{ContactRepo: h.contactRepo}
+	contacts, err := service.GetContacts(vars["authID"])
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContacts failed: %s", err)
+	}
+
+	data, err := json.Marshal(contacts)
+
+	if err != nil {
+		log.Printf("ContactHandler.GetContacts failed to marshal result: %s", err)
+	}
+
+	w.Write(data)
+}
