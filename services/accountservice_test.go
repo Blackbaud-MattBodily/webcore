@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"testing"
 
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/entities"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 var accountDTO = AccountDTO{
@@ -43,6 +43,10 @@ func (m mockAccountRepository) GetAccount(id string) (*AccountDTO, error) {
 
 func (m mockAccountRepository) CreateAccount(account *entities.Account) (id string, siteID int, err error) {
 	return "001d000001TwuXwAAJ", 12345, nil
+}
+
+func (m mockAccountRepository) QueryAccounts(query string) ([]*AccountDTO, error) {
+	return []*AccountDTO{&accountDTO}, nil
 }
 
 func (m mockAccountRepository) UpdateAccount(account *entities.Account) error {
