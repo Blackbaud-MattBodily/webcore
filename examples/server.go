@@ -16,10 +16,22 @@ func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getContactExample()
+	getContactCountExample()
+	//getContactExample()
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getContactCountExample() {
+	count, err := contactService.GetContactCount("001d000001TweFmAAJ")
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println()
+	}
+
+	fmt.Println(count)
 }
 
 func getContactExample() {

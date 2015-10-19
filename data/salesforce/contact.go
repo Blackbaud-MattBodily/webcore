@@ -47,6 +47,16 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	return &contact.ContactDTO, nil
 }
 
+//GetContactCount returns the number of salesforce contacts currently associated with an account.
+func (a API) GetContactCount(accountId string) (int, error) {
+	queryResponse := &SFDCContactQueryResponse{}
+	query := "SELECT count() FROM Contact WHERE AccountId = '" + accountId + "'"
+
+	err := a.client.QuerySFDCObject(query, queryResponse)
+
+	return int(queryResponse.TotalSize), err
+}
+
 //QueryContacts returns a slice of SFDCContacts that represents the results of the SOQL query given.
 func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 	queryResponse := &SFDCContactQueryResponse{}

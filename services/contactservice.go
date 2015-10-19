@@ -10,6 +10,7 @@ import (
 type ContactRepository interface {
 	GetContact(id string) (*ContactDTO, error)
 	QueryContacts(query string) ([]*ContactDTO, error)
+	GetContactCount(accountId string) (int, error)
 	CreateContact(contact *entities.Contact) (id, name string, err error)
 	UpdateContact(contact *entities.Contact) error
 }
@@ -107,6 +108,13 @@ func (cs *ContactService) GetContacts(authID string) ([]*ContactDTO, error) {
 	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	return contacts, err
+}
+
+//GetContactCount returns the number of contacts currently associated with an account.
+func (cs *ContactService) GetContactCount(accountId string) (int, error) {
+	count, err := cs.ContactRepo.GetContactCount(accountId)
+
+	return count, err
 }
 
 //QueryContacts returns all contact records that result from the given query.
