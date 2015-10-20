@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/blackbaudIT/webcore/data/salesforce/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/entities"
 )
 
@@ -68,6 +68,10 @@ func (m mockClient) InsertSFDCObject(obj interface{}) (resposne SFDCResponse, er
 
 func (m mockClient) UpsertSFDCObjectByExternalID(id string, obj interface{}) (err error) {
 	return getCommandError()
+}
+
+func (m mockClient) QuerySFDCObject(query string, obj interface{}) (err error) {
+	return nil
 }
 
 func TestAccountApiName(t *testing.T) {
