@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/blackbaudIT/webcore/entities"
@@ -9,6 +10,7 @@ import (
 //ContactRepository is an interface for accessing Contact data
 type ContactRepository interface {
 	GetContact(id string) (*ContactDTO, error)
+	GetContactsByAuthID(id string) ([]*ContactDTO, error)
 	QueryContacts(query string) ([]*ContactDTO, error)
 	GetContactCount(accountId string) (int, error)
 	CreateContact(contact *entities.Contact) (id, name string, err error)
@@ -17,40 +19,47 @@ type ContactRepository interface {
 
 //ContactDTO is a data transfer object for entities.Contact
 type ContactDTO struct {
-	Name              string `json:"name,omitempty" force:"Name,omitempty"`
-	SalesForceID      string `json:"salesForceID,omitempty" force:"Id,omitempty"`
-	Email             string `json:"email,omitempty" force:"Email,omitempty"`
-	Phone             string `json:"phone,omitempty" force:"Phone,omitempty"`
-	Fax               string `json:"fax,omitempty" force:"Fax,omitempty"`
-	Title             string `json:"title,omitempty" force:"Title,omitempty"`
-	AccountID         string `json:"accountId,omitempty" force:"AccountId,omitempty"`
-	AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
-	SFDCContactStatus string `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
-	BBAuthID          string `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
-	BBAuthEmail       string `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
-	BBAuthFirstName   string `json:"bbFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
-	BBAuthLastName    string `json:"bbLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
+	//AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
+	Name              string      `json:"name,omitempty" force:"Name,omitempty"`
+	SalesForceID      string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
+	Email             string      `json:"email,omitempty" force:"Email,omitempty"`
+	Phone             string      `json:"phone,omitempty" force:"Phone,omitempty"`
+	Fax               string      `json:"fax,omitempty" force:"Fax,omitempty"`
+	Title             string      `json:"title,omitempty" force:"Title,omitempty"`
+	Account           *AccountDTO `json:"account,omitempty" force:"Account,omitempty"`
+	SFDCContactStatus string      `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
+	Currency          string      `json:"currency,omitempty" force:"CurrencyIsoCode"`
+	BBAuthID          string      `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
+	BBAuthEmail       string      `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
+	BBAuthFirstName   string      `json:"bbAuthFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
+	BBAuthLastName    string      `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
 }
 
 func (c *ContactDTO) toEntity() (*entities.Contact, error) {
-	contact, err := entities.NewContact(c.Name)
+	account, err := c.Account.toEntity()
+
+	if err != nil {
+		account, _ = entities.NewAccount("failed")
+		contact, _ := entities.NewContact("Failed", account, "Failed")
+		return contact, errors.New("Failed to convert AccountDTO to account")
+	}
+
+	contact, err := entities.NewContact(c.Name, account, entities.CurrencyType(c.Currency))
 
 	if err != nil {
 		return contact,
 			fmt.Errorf("Error converting to contact Entity: %v", err.Error())
 	}
 
-	contact.Email = c.Email
 	contact.Phone = c.Phone
 	contact.Fax = c.Fax
 	contact.Title = c.Title
-	contact.AccountID = c.AccountID
-	contact.AccountName = c.AccountName
-	contact.Status = c.SFDCContactStatus
-	contact.BBAuthID = c.BBAuthID
-	contact.BBAuthEmail = c.BBAuthEmail
-	contact.BBAuthFirstName = c.BBAuthFirstName
-	contact.BBAuthLastName = c.BBAuthLastName
+	contact.SetEmail(c.Email)
+	contact.SetStatus(c.SFDCContactStatus)
+	contact.SetBBAuthID(c.BBAuthID)
+	contact.SetBBAuthEmail(c.BBAuthEmail)
+	contact.SetBBAuthFirstName(c.BBAuthFirstName)
+	contact.SetBBAuthLastName(c.BBAuthLastName)
 
 	return contact, err
 }
@@ -58,17 +67,17 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
 func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 	dto := &ContactDTO{
-		Name:              contact.Name,
-		Email:             contact.Email,
+		Name:              contact.Name(),
+		Email:             contact.Email(),
 		Phone:             contact.Phone,
 		Fax:               contact.Fax,
 		Title:             contact.Title,
-		AccountName:       contact.AccountName,
-		SFDCContactStatus: contact.Status,
-		BBAuthID:          contact.BBAuthID,
-		BBAuthEmail:       contact.BBAuthEmail,
-		BBAuthFirstName:   contact.BBAuthFirstName,
-		BBAuthLastName:    contact.BBAuthLastName,
+		Account:           ConvertAccountEntityToAccountDTO(contact.Account()),
+		SFDCContactStatus: contact.Status(),
+		BBAuthID:          contact.BBAuthID(),
+		BBAuthEmail:       contact.BBAuthEmail(),
+		BBAuthFirstName:   contact.BBAuthFirstName(),
+		BBAuthLastName:    contact.BBAuthLastName(),
 	}
 	return dto
 }
@@ -101,11 +110,12 @@ func (cs *ContactService) GetContactByEmail(email string) (*ContactDTO, error) {
 }
 
 //GetContacts returns all contact records associated with a given BBAuthID
-func (cs *ContactService) GetContacts(authID string) ([]*ContactDTO, error) {
-	query := ("SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
-		"SFDC_Contact_Status__c, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c FROM Contact WHERE BBAuthID__c = '" + authID + "'")
-	contacts, err := cs.ContactRepo.QueryContacts(query)
+func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, error) {
+	contacts, err := cs.ContactRepo.GetContactsByAuthID(authID)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return contacts, err
 }

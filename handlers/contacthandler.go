@@ -59,20 +59,20 @@ func (h *ContactHandler) GetContactByEmail(w http.ResponseWriter, r *http.Reques
 	w.Write(data)
 }
 
-//GetContacts responds to an HTTP request for all contact records associated with a given BBAuthID.
-func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
+//GetContactsByAuthID responds to an HTTP request for all contact records associated with a given BBAuthID.
+func (h *ContactHandler) GetContactsByAuthID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	service := &services.ContactService{ContactRepo: h.contactRepo}
-	contacts, err := service.GetContacts(vars["authID"])
+	contacts, err := service.GetContactsByAuthID(vars["authID"])
 
 	if err != nil {
-		log.Printf("ContactHandler.GetContacts failed: %s", err)
+		log.Printf("ContactHandler.GetContactsByAuthID failed: %s", err)
 	}
 
 	data, err := json.Marshal(contacts)
 
 	if err != nil {
-		log.Printf("ContactHandler.GetContacts failed to marshal result: %s", err)
+		log.Printf("ContactHandler.GetContactsByAuthID failed to marshal result: %s", err)
 	}
 
 	w.Write(data)
