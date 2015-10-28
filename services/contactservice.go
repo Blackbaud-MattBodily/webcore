@@ -11,6 +11,7 @@ import (
 type ContactRepository interface {
 	GetContact(id string) (*ContactDTO, error)
 	GetContactsByAuthID(id string) ([]*ContactDTO, error)
+	GetContactsByEmail(email string) ([]*ContactDTO, error)
 	QueryContacts(query string) ([]*ContactDTO, error)
 	GetContactCount(accountId string) (int, error)
 	CreateContact(contact *entities.Contact) (id, name string, err error)
@@ -39,9 +40,7 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 	account, err := c.Account.toEntity()
 
 	if err != nil {
-		account, _ = entities.NewAccount("failed")
-		contact, _ := entities.NewContact("Failed", account, "Failed")
-		return contact, errors.New("Failed to convert AccountDTO to account")
+		return nil, errors.New("Failed to convert AccountDTO to account")
 	}
 
 	contact, err := entities.NewContact(c.Name, account, entities.CurrencyType(c.Currency))
@@ -87,29 +86,20 @@ type ContactService struct {
 	ContactRepo ContactRepository
 }
 
-//GetContact returns a Contact by SFDC ID or BBAuthID
+//GetContact returns a Contact by SFDC ID.
 func (cs *ContactService) GetContact(id string) (*ContactDTO, error) {
 	c, err := cs.ContactRepo.GetContact(id)
 	return c, err
 }
 
-//GetContactByEmail returns a contact from an email.
-func (cs *ContactService) GetContactByEmail(email string) (*ContactDTO, error) {
-	//TODO: This should probably be based on BBAuth_Email__c, but that field is not indexed yet.
-	query := ("SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
-		"SFDC_Contact_Status__c, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c FROM Contact WHERE Email = '" + email + "'")
-	contacts, err := cs.ContactRepo.QueryContacts(query)
+//GetContactsByEmail returns a slice of contacts that share the same BBAuth email.
+func (cs *ContactService) GetContactsByEmail(email string) ([]*ContactDTO, error) {
+	contacts, err := cs.ContactRepo.GetContactsByEmail(email)
 
-	if err != nil {
-		return &ContactDTO{}, err
-	}
-
-	//TODO: Could probably do something more elegant than returning the first contact in the result slice.
-	return contacts[0], err
+	return contacts, err
 }
 
-//GetContacts returns all contact records associated with a given BBAuthID
+//GetContactsByAuthID returns all contact records associated with a given BBAuthID
 func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, error) {
 	contacts, err := cs.ContactRepo.GetContactsByAuthID(authID)
 

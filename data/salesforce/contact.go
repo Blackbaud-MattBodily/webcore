@@ -68,6 +68,21 @@ func (a API) GetContactsByAuthID(id string) ([]*services.ContactDTO, error) {
 	return a.QueryContacts(query)
 }
 
+//GetContactsByEmail returns a slice of contact records given a BBAuth email.
+func (a API) GetContactsByEmail(email string) ([]*services.ContactDTO, error) {
+	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
+		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
+		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
+		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
+		"WHERE BBAuth_Email__c = '" + id + "'"
+
+	return a.QueryContacts(query)
+}
+
 //GetContactCount returns the number of salesforce contacts currently associated with an account.
 func (a API) GetContactCount(accountId string) (int, error) {
 	queryResponse := &SFDCContactQueryResponse{}
