@@ -47,7 +47,7 @@ func TestNewContact(t *testing.T) {
 			Convey("And the Contact Name, Account, and Currency should equal the given values", func() {
 				So(contact.Name(), ShouldEqual, name)
 				So(contact.Account(), ShouldEqual, account)
-				So(contact.Currency(), ShouldEqual, currency)
+				So(contact.Currency, ShouldEqual, currency)
 			})
 		})
 	})
