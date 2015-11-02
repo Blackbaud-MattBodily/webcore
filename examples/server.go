@@ -16,10 +16,35 @@ func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getContactExample()
+	getContactsWithAccountExample()
+	//getContactCountExample()
+	//getContactExample()
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getContactsWithAccountExample() {
+	contacts, err := contactService.GetContactsByAuthID("32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	data, err := json.Marshal(contacts)
+
+	fmt.Printf("Contacts: %s", data)
+}
+
+func getContactCountExample() {
+	count, err := contactService.GetContactCount("001d000001TweFmAAJ")
+
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println()
+	}
+
+	fmt.Println(count)
 }
 
 func getContactExample() {
@@ -42,7 +67,7 @@ func getContactExample() {
 }
 
 func getAccountExample() {
-	account, err := service.GetAccount("5740")
+	account, err := service.GetAccount("46558")
 
 	if err != nil {
 		fmt.Println(err)
