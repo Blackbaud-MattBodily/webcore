@@ -78,7 +78,7 @@ func (a API) GetContactsByEmail(email string) ([]*services.ContactDTO, error) {
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
 		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuth_Email__c = '" + id + "'"
+		"WHERE BBAuth_Email__c = '" + email + "'"
 
 	return a.QueryContacts(query)
 }
