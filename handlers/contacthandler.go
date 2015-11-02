@@ -41,7 +41,7 @@ func (h *ContactHandler) GetContact(w http.ResponseWriter, r *http.Request) {
 }
 
 //GetContactByEmail responds to an HTTP request for a contact record. It's reliant on an "email" parameter being present in the request's vars.
-func (h *ContactHandler) GetContactByEmail(w http.ResponseWriter, r *http.Request) {
+func (h *ContactHandler) GetContactsByEmail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	service := &services.ContactService{ContactRepo: h.contactRepo}
 	contact, err := service.GetContactByEmail(vars["email"])
