@@ -1,6 +1,13 @@
 # Blackbaud WebCore
 
-See https://godoc.org/github.com/blackbaudIT/webcore for documentation.
+[ ![Codeship Status for blackbaudIT/webcore](https://codeship.com/projects/8294cd40-566a-0133-7143-166e04e6001d/status?branch=master)](https://codeship.com/projects/109347)
+
+Package | Documentation
+--------|--------------
+entities|[![GoDoc](https://godoc.org/github.com/blackbaudIT/webcore/entities?status.svg)](https://godoc.org/github.com/blackbaudIT/webcore/entities)
+handlers|[![GoDoc](https://godoc.org/github.com/blackbaudIT/webcore/handlers?status.svg)](https://godoc.org/github.com/blackbaudIT/webcore/handlers)
+salesforce|[![GoDoc](https://godoc.org/github.com/blackbaudIT/webcore/data/salesforce?status.svg)](https://godoc.org/github.com/blackbaudIT/webcore/data/salesforce)
+services|[![GoDoc](https://godoc.org/github.com/blackbaudIT/webcore/services?status.svg)](https://godoc.org/github.com/blackbaudIT/webcore/services)
 
 See the examples directory for a working example.
 
