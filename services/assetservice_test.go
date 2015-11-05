@@ -16,10 +16,11 @@ var assetDTO = AssetDTO{
 	EndDate:      endDate,
 	MaterialType: "Software",
 }
-var mock = mockAssetRepository{}
-var assetService = AssetService{AssetRepo: mock, QueryBuilder: mockAssetQueryBuilder{}}
+var mock = mockAssetRepository{mockAssetQueryBuilder{}}
+var assetService = AssetService{AssetRepo: mock}
 
 type mockAssetRepository struct {
+	AssetQueryBuilder
 }
 
 func (m mockAssetRepository) QueryAssets(query string) ([]*AssetDTO, error) {
@@ -37,7 +38,7 @@ func (m mockAssetQueryBuilder) BuildAssetsByAccountIDQuery(accountID string) str
 func TestQueryAssets(t *testing.T) {
 	Convey("Given a valid account ID", t, func() {
 		id := "001d000001TwuXwAAJ"
-		Convey("When assets are requested from the AccountService", func() {
+		Convey("When assets are requested from the AssetService", func() {
 			assets, err := assetService.GetAssetsByAccountID(id)
 			Convey("Then an Asset Data Transfer Object is returned", func() {
 				So(err, ShouldBeNil)
@@ -52,8 +53,8 @@ func TestQueryAssets(t *testing.T) {
 func TestQueryBuilder(t *testing.T) {
 	Convey("Given a valid account ID", t, func() {
 		id := "001d000001TwuXwAAJ"
-		Convey("When a query string is requested from the AccountService", func() {
-			query := assetService.QueryBuilder.BuildAssetsByAccountIDQuery(id)
+		Convey("When a query string is requested from the AssetService", func() {
+			query := assetService.AssetRepo.BuildAssetsByAccountIDQuery(id)
 			Convey("Then a query is returned", func() {
 				So(query, ShouldEqual, "SELECT Product_Line__c, End_Date__c, Material_Type__c FROM Client_Asset__c WHERE Account__r.Id = '001d000001TwuXwAAJ'")
 			})
