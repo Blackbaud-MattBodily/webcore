@@ -25,7 +25,7 @@ func (h *AssetHandler) GetAssetsByAccountID(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	accountID, ok := vars["accountId"]
 	if !ok {
-		log.Printf("AssetHandler.GetAssetsByAccountID - missing accountID parameter. vars:%v", vars)
+		log.Println("AssetHandler.GetAssetsByAccountID - missing accountID parameter.")
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
@@ -38,6 +38,7 @@ func (h *AssetHandler) GetAssetsByAccountID(w http.ResponseWriter, r *http.Reque
 	}
 
 	data, err := json.Marshal(assets)
+	log.Printf("asset data: %v", data)
 	if err != nil {
 		log.Printf("AssetHandler.GetAssetsByAccountID failed to marshal result: %s", err)
 		http.Error(w, http.StatusText(500), 500)
