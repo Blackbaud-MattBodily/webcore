@@ -23,9 +23,9 @@ func NewAssetHandler(service services.AssetService) *AssetHandler {
 // GetAssetsByAccountID returns all Assets for the accountID provided
 func (h *AssetHandler) GetAssetsByAccountID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	accountID, ok := vars["accountID"]
+	accountID, ok := vars["accountId"]
 	if !ok {
-		log.Printf("AssetHandler.GetAssetsByAccountID - missing accountID parameter")
+		log.Printf("AssetHandler.GetAssetsByAccountID - missing accountID parameter. vars:%v", vars)
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
