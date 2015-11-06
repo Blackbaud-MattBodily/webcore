@@ -43,6 +43,6 @@ func (h *AssetHandler) GetAssetsByAccountID(w http.ResponseWriter, r *http.Reque
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-
+	log.Printf("Asset Data: %v", data)
 	w.Write(data)
 }
