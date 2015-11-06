@@ -10,7 +10,7 @@ type CustomDate struct {
 
 const customDateLayout = "2006-01-02"
 
-// UnmarshalJSON implements the json.Unmarshaler interface for SFDCDate
+// UnmarshalJSON implements the json.Unmarshaler interface for CustomDate
 func (d *CustomDate) UnmarshalJSON(b []byte) (err error) {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
@@ -19,14 +19,14 @@ func (d *CustomDate) UnmarshalJSON(b []byte) (err error) {
 	return
 }
 
-// MarshalJSON implements the json.Marshaler interface for SFDCDate
+// MarshalJSON implements the json.Marshaler interface for CustomDate
 func (d *CustomDate) MarshalJSON() ([]byte, error) {
-	return []byte(d.Time.Format(customDateLayout)), nil
+	return []byte(`"` + d.Time.Format(customDateLayout) + `"`), nil
 }
 
 var nilTime = (time.Time{}).UnixNano()
 
-// IsSet can be used to check for SFDCDate nil time
+// IsSet can be used to check for CustomDate nil time
 func (d *CustomDate) IsSet() bool {
 	return d.UnixNano() != nilTime
 }
