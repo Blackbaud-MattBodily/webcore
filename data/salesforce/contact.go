@@ -17,7 +17,10 @@ type SFDCContact struct {
 type SFDCContactQueryResponse struct {
 	SFDCQueryResponse
 
-	Records []*SFDCContact `json:"Records" force:"records"`
+	Records []*services.ContactDTO `json:"Records" force:"records"`
+}
+
+type SFDCContactQueryBuilder struct {
 }
 
 //ApiName is the SFDC ApiName of the Contact object.
@@ -27,7 +30,7 @@ func (s SFDCContact) ApiName() string {
 
 //ExternalIdApiName is the SFDC external id for the Contact object.
 func (s SFDCContact) ExternalIdApiName() string {
-	return "Username"
+	return "eBus_Contact_ID__c"
 }
 
 //GetContact returns a Salesforce contact given an SFDC ID or a BBAuthID.
@@ -53,36 +56,6 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	return &contact.ContactDTO, nil
 }
 
-//GetContactsByAuthID returns a slice of contact records given a BBAuthID
-func (a API) GetContactsByAuthID(id string) ([]*services.ContactDTO, error) {
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
-		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
-		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
-		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
-		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
-		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuthID__c = '" + id + "'"
-
-	return a.QueryContacts(query)
-}
-
-//GetContactsByEmail returns a slice of contact records given a BBAuth email.
-func (a API) GetContactsByEmail(email string) ([]*services.ContactDTO, error) {
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
-		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
-		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
-		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
-		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
-		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuth_Email__c = '" + email + "'"
-
-	return a.QueryContacts(query)
-}
-
 //GetContactCount returns the number of salesforce contacts currently associated with an account.
 func (a API) GetContactCount(accountId string) (int, error) {
 	queryResponse := &SFDCContactQueryResponse{}
@@ -98,14 +71,8 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 	queryResponse := &SFDCContactQueryResponse{}
 
 	err := a.client.QuerySFDCObject(query, queryResponse)
-	contacts := make([]*services.ContactDTO, len(queryResponse.Records))
 
-	//Mapping the returned slice of *SFDCContacts to a slice of *ContactDTOs
-	for index, dto := range queryResponse.Records {
-		contacts[index] = &dto.ContactDTO
-	}
-
-	return contacts, err
+	return queryResponse.Records, err
 }
 
 //CreateContact creates a new SFDC Contact.
@@ -136,4 +103,36 @@ func (a API) CreateContact(contact *entities.Contact) (string, string, error) {
 //UpdateContact updates a given contact.
 func (a API) UpdateContact(contact *entities.Contact) error {
 	return nil
+}
+
+//GetByAuthID returns a contact query string that selects contacts with the given
+//BBAuthID.
+func (b SFDCContactQueryBuilder) GetByAuthID(id string) string {
+	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
+		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
+		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
+		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
+		"WHERE BBAuthID__c = '" + id + "'"
+
+	return query
+}
+
+//GetByEmail returns a contact query string that selects contacts with the given
+//BBAuth Email.
+func (b SFDCContactQueryBuilder) GetByEmail(email string) string {
+	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
+		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
+		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
+		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
+		"WHERE BBAuth_Email__c = '" + email + "'"
+
+	return query
 }

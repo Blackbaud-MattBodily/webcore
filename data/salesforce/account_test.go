@@ -7,6 +7,7 @@ import (
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/entities"
+	"github.com/nimajalali/go-force/force"
 )
 
 var api = API{mockClient{}}
@@ -24,12 +25,28 @@ type mockClient struct {
 }
 
 func (m mockClient) GetSFDCObject(id string, obj interface{}) (err error) {
-	sobject, ok := obj.(*SFDCAccount)
+	_, ok := obj.(force.SObject)
 	if !ok {
-		err = fmt.Errorf("unable to convert data to SFDCAccount. Unexpected type: %T", obj)
+		err = fmt.Errorf("unable to convert data to sObject. Unexpected type: %T", obj)
 		return err
 	}
 
+	sfdcaccount, ok := obj.(*SFDCAccount)
+
+	if ok {
+		return getAccount(id, sfdcaccount)
+	}
+
+	sfdccontact, ok := obj.(*SFDCContact)
+
+	if ok {
+		return getContact(id, sfdccontact)
+	}
+
+	return fmt.Errorf("unused sObject given. Webcore does not work with: %T", obj)
+}
+
+func getAccount(id string, sobject *SFDCAccount) (err error) {
 	sobject.SalesForceID = id
 
 	// used to return a valid SiteID during create test
@@ -41,6 +58,12 @@ func (m mockClient) GetSFDCObject(id string, obj interface{}) (err error) {
 	if id == "001d000001TweFmZZZ" {
 		sobject.SiteID = "a5740"
 	}
+
+	return getQueryError()
+}
+
+func getContact(id string, sobject *SFDCContact) (err error) {
+	sobject.SalesForceID = id
 
 	return getQueryError()
 }
