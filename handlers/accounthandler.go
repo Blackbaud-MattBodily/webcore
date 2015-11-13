@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/blackbaudIT/webcore/services"
-	"github.com/gorilla/mux"
 )
 
 //AccountHandler holds an AccountRepository and uses it to handle standard

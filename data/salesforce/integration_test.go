@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/services"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 var qasAPI = NewAPI()

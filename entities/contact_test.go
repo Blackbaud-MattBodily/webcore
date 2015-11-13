@@ -3,7 +3,7 @@ package entities
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 )
 
 func TestNewContact(t *testing.T) {

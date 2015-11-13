@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/smartystreets/assertions/internal/oglematchers"
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/oglematchers"
 )
 
 // ExpectThat confirms that the supplied matcher matches the value x, adding a

@@ -16,7 +16,7 @@
 package ogletest
 
 import (
-	"github.com/smartystreets/assertions/internal/oglemock"
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/oglemock"
 	"runtime"
 )
 

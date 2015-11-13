@@ -1,7 +1,7 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/convey/reporting"
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey/reporting"
 )
 
 type nilReporter struct{}

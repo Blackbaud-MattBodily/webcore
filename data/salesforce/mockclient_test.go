@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/nimajalali/go-force/force"
 	"github.com/blackbaudIT/webcore/services"
-	"github.com/nimajalali/go-force/force"
 )
 
 var api = API{mockClient{}}

@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/assertions/internal/oglematchers"
-	. "github.com/smartystreets/assertions/internal/ogletest"
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/oglematchers"
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/ogletest"
 )
 
 func TestPassingTest(t *testing.T) { RunTests(t) }

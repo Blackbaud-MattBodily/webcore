@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/smartystreets/assertions/internal/ogletest"
+	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/ogletest"
 )
 
 func TestStop(t *testing.T) { RunTests(t) }
