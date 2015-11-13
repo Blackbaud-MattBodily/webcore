@@ -63,16 +63,6 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 	return queryResponse.Records, err
 }
 
-//UpdateContact updates a given contact.
-func (a API) UpdateContact(contact *entities.Contact) error {
-	return nil
-}
-
-//UpdateUser updates all contacts associated with a given authID.
-func (a API) UpdateUser(authID string) error {
-	return nil
-}
-
 //GetByAuthID returns a contact query string that selects contacts with the given
 //BBAuthID.
 func (a API) GetByAuthID(id string) (string, error) {
@@ -115,4 +105,13 @@ func (a API) GetByEmail(email string) (string, error) {
 		"WHERE BBAuth_Email__c = '" + email + "'"
 
 	return query, nil
+}
+
+//UpdateContact updates a given contact.
+func (a API) UpdateContact(c *entities.Contact) error {
+	contact := services.ConvertContactEntityToContactDTO(c)
+
+	sfdcContact := SFDCContact{ContactDTO: *contact}
+
+	return a.client.UpdateSFDCObject(sfdcContact.SalesForceID, sfdcContact)
 }

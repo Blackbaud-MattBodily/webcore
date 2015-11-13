@@ -67,6 +67,7 @@ type sfdcClient interface {
 	QuerySFDCObject(query string, obj interface{}) (err error)
 	InsertSFDCObject(object interface{}) (resposne SFDCResponse, err error)
 	UpsertSFDCObjectByExternalID(id string, obj interface{}) (err error)
+	UpdateSFDCObject(id string, obj interface{}) (err error)
 }
 
 type forceClient struct {
@@ -128,6 +129,20 @@ func (f forceClient) UpsertSFDCObjectByExternalID(id string, obj interface{}) (e
 
 	// no response object is returned for upserts
 	_, err = f.UpsertSObjectByExternalId(id, sobject)
+
+	return err
+}
+
+//UpdateSFDCObject currently has to be explicitly handed the SFDC ID of the object being passed. This should be changed
+//in the future to read that property from the object itself.
+func (f forceClient) UpdateSFDCObject(id string, obj interface{}) (err error) {
+	sobject, ok := obj.(force.SObject)
+	if !ok {
+		err = fmt.Errorf("unable to convert data to SObject")
+		return err
+	}
+
+	err = f.UpdateSObject(id, sobject)
 
 	return err
 }

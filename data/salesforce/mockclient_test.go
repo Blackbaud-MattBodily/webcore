@@ -108,6 +108,10 @@ func (m mockClient) QuerySFDCObject(query string, obj interface{}) (err error) {
 	return errors.New("obj is not a valid SFDCQueryResponse")
 }
 
+func (m mockClient) UpdateSFDCObject(id string, obj interface{}) error {
+	return getCommandError()
+}
+
 func queryContacts(query string, res *SFDCContactQueryResponse) error {
 	res.TotalSize = 0
 	if strings.Split(query, " ")[0] == "delect" {
