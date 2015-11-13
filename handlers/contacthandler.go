@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/blackbaudIT/webcore/services"
+	"github.com/gorilla/mux"
 )
 
 //ContactHandler holds a ContactRepository and uses it to respond to standard

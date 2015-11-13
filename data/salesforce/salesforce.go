@@ -29,8 +29,8 @@ package salesforce
 import (
 	"fmt"
 
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/nimajalali/go-force/force"
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/spf13/viper"
+	"github.com/nimajalali/go-force/force"
+	"github.com/spf13/viper"
 )
 
 var viperSFDC = viper.New()

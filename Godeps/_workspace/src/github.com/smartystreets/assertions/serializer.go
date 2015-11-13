@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey/reporting"
+	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
 type Serializer interface {

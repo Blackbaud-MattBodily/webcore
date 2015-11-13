@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/ogletest/srcutil"
+	"github.com/smartystreets/assertions/internal/ogletest/srcutil"
 )
 
 // Test suites that implement this interface have special meaning to

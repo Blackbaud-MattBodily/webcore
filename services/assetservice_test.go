@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var tempDate, _ = time.Parse(customDateLayout, "2029-11-10")

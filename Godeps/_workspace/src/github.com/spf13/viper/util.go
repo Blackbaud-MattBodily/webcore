@@ -21,11 +21,11 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/BurntSushi/toml"
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/magiconair/properties"
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/spf13/cast"
-	jww "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"github.com/BurntSushi/toml"
+	"github.com/magiconair/properties"
+	"github.com/spf13/cast"
+	jww "github.com/spf13/jwalterweatherman"
+	"gopkg.in/yaml.v2"
 )
 
 func insensitiviseMap(m map[string]interface{}) {

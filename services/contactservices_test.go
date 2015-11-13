@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/entities"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var contactDTO = ContactDTO{

@@ -18,7 +18,7 @@
 package complicated_pkg
 
 import (
-	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions/internal/oglemock/generate/test_cases/renamed_pkg"
+	"github.com/smartystreets/assertions/internal/oglemock/generate/test_cases/renamed_pkg"
 	"image"
 	"io"
 	"net"

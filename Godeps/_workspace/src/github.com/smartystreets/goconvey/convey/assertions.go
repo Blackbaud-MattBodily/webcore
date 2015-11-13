@@ -1,6 +1,6 @@
 package convey
 
-import "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/assertions"
+import "github.com/smartystreets/assertions"
 
 var (
 	ShouldEqual          = assertions.ShouldEqual
