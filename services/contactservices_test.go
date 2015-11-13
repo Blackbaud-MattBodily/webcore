@@ -9,18 +9,18 @@ import (
 )
 
 var contactDTO = ContactDTO{
-	Name:              "Erik Tate",
-	SalesForceID:      "003d0000026MOlUAAW",
-	Email:             "erik.tate@blackbaud.com",
-	Phone:             "(843)654-2566",
-	Fax:               "(843)654-2566",
-	Title:             "Application Developer II",
-	Account:           &accountDTO,
-	SFDCContactStatus: "Active",
-	Currency:          "USD - U.S. Dollar",
-	BBAuthID:          "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF",
-	BBAuthFirstName:   "Erik",
-	BBAuthLastName:    "Tate",
+	Name:            "Erik Tate",
+	SalesForceID:    "003d0000026MOlUAAW",
+	Email:           "erik.tate@blackbaud.com",
+	Phone:           "(843)654-2566",
+	Fax:             "(843)654-2566",
+	Title:           "Application Developer II",
+	Account:         &accountDTO,
+	Status:          "Active",
+	Currency:        "USD - U.S. Dollar",
+	BBAuthID:        "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF",
+	BBAuthFirstName: "Erik",
+	BBAuthLastName:  "Tate",
 }
 
 var contactService = ContactService{ContactRepo: mockContactRepository{}}
