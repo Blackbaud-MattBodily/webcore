@@ -53,6 +53,10 @@ func (m mockAccountRepository) UpdateAccount(account *entities.Account) error {
 	return nil
 }
 
+func (m mockAccountRepository) GetContactCount(accountID string) (int, error) {
+	return 0, nil
+}
+
 func TestAccountDTOToEntity(t *testing.T) {
 	Convey("Given an Account Data Transfer Object with an empty name", t, func() {
 		accountDTOCopy := accountDTO

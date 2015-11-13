@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/blackbaudIT/webcore/services"
@@ -76,21 +75,4 @@ func (h *ContactHandler) GetContactsByAuthID(w http.ResponseWriter, r *http.Requ
 	}
 
 	w.Write(data)
-}
-
-//GetContactCount returns the number of contacts currently related to a given account.
-func (h *ContactHandler) GetContactCount(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	service := &services.ContactService{ContactRepo: h.contactRepo}
-	w.Header().Set("Content-type", "application/json")
-	count, err := service.GetContactCount(vars["accountId"])
-
-	if err != nil {
-		log.Printf("ContactHandler.GetContactCount failed to retrieve count: %s", err)
-		w.Write([]byte("{\"count\":0}"))
-		return
-	}
-
-	response := "{\"count\":" + strconv.Itoa(count) + "}"
-	w.Write([]byte(response))
 }

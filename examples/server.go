@@ -37,7 +37,7 @@ func getContactsWithAccountExample() {
 }
 
 func getContactCountExample() {
-	count, err := contactService.GetContactCount("001d000001TweFmAAJ")
+	count, err := service.GetContactCount("001d000001TweFmAAJ")
 
 	if err != nil {
 		fmt.Println(err)

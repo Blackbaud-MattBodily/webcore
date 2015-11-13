@@ -9,17 +9,16 @@ import (
 
 //ContactRepository is an interface for accessing Contact data
 type ContactRepository interface {
+	ContactQueryBuilder
 	GetContact(id string) (*ContactDTO, error)
 	QueryContacts(query string) ([]*ContactDTO, error)
-	GetContactCount(accountId string) (int, error)
-	CreateContact(contact *entities.Contact) (id, name string, err error)
 	UpdateContact(contact *entities.Contact) error
 }
 
 //ContactQueryBuilder is an interface for building Contact queries.
 type ContactQueryBuilder interface {
-	GetByAuthID(id string) string
-	GetByEmail(email string) string
+	GetByAuthID(id string) (string, error)
+	GetByEmail(email string) (string, error)
 }
 
 //ContactDTO is a data transfer object for entities.Contact
@@ -41,6 +40,10 @@ type ContactDTO struct {
 }
 
 func (c *ContactDTO) toEntity() (*entities.Contact, error) {
+	if c.Account == nil {
+		return nil, errors.New("Nil value passed as AccountDTO")
+	}
+
 	account, err := c.Account.toEntity()
 
 	if err != nil {
@@ -87,14 +90,13 @@ func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 
 //ContactService provides interaction with Contact data.
 type ContactService struct {
-	ContactRepo  ContactRepository
-	queryBuilder ContactQueryBuilder
+	ContactRepo ContactRepository
 }
 
 //NewContactService returns a pointer to a valid ContactService given a
 //ContactRepository and a ContactQueryBuilder.
-func NewContactService(repo ContactRepository, queryBuilder ContactQueryBuilder) *ContactService {
-	return &ContactService{ContactRepo: repo, queryBuilder: queryBuilder}
+func NewContactService(repo ContactRepository) *ContactService {
+	return &ContactService{ContactRepo: repo}
 }
 
 //GetContact returns a Contact by SFDC ID.
@@ -105,14 +107,25 @@ func (cs *ContactService) GetContact(id string) (*ContactDTO, error) {
 
 //GetContactsByEmail returns a slice of contacts that share the same BBAuth email.
 func (cs *ContactService) GetContactsByEmail(email string) ([]*ContactDTO, error) {
-	contacts, err := cs.ContactRepo.QueryContacts(cs.queryBuilder.GetByEmail(email))
+	query, err := cs.ContactRepo.GetByEmail(email)
+
+	if err != nil {
+		return make([]*ContactDTO, 0), err
+	}
+
+	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	return contacts, err
 }
 
 //GetContactsByAuthID returns all contact records associated with a given BBAuthID
 func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, error) {
-	contacts, err := cs.ContactRepo.QueryContacts(cs.queryBuilder.GetByAuthID(authID))
+	query, err := cs.ContactRepo.GetByEmail(authID)
+
+	if err != nil {
+		return make([]*ContactDTO, 0), err
+	}
+	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	if err != nil {
 		fmt.Println(err)
@@ -121,31 +134,11 @@ func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, err
 	return contacts, err
 }
 
-//GetContactCount returns the number of contacts currently associated with an account.
-func (cs *ContactService) GetContactCount(accountId string) (int, error) {
-	count, err := cs.ContactRepo.GetContactCount(accountId)
-
-	return count, err
-}
-
 //QueryContacts returns all contact records that result from the given query.
 func (cs *ContactService) QueryContacts(query string) ([]*ContactDTO, error) {
 	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	return contacts, err
-}
-
-//CreateContact creates a new Contact
-func (cs *ContactService) CreateContact(c ContactDTO) (id, name string, err error) {
-	contact, err := c.toEntity()
-
-	if err != nil {
-		return "", "", err
-	}
-
-	id, name, err = cs.ContactRepo.CreateContact(contact)
-
-	return id, name, err
 }
 
 //UpdateContact updates a contact represented by a ContactDTO.

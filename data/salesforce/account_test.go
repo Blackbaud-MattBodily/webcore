@@ -7,95 +7,7 @@ import (
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 	"github.com/blackbaudIT/webcore/entities"
-	"github.com/nimajalali/go-force/force"
 )
-
-var api = API{mockClient{}}
-var getCommandError = func() error { return nil }
-var getQueryError = func() error { return nil }
-var getSFDCResposne = func() SFDCResponse {
-	return SFDCResponse{
-		ID:           "001d000001TweFmAAJ",
-		ErrorMessage: "",
-		Success:      true,
-	}
-}
-
-type mockClient struct {
-}
-
-func (m mockClient) GetSFDCObject(id string, obj interface{}) (err error) {
-	_, ok := obj.(force.SObject)
-	if !ok {
-		err = fmt.Errorf("unable to convert data to sObject. Unexpected type: %T", obj)
-		return err
-	}
-
-	sfdcaccount, ok := obj.(*SFDCAccount)
-
-	if ok {
-		return getAccount(id, sfdcaccount)
-	}
-
-	sfdccontact, ok := obj.(*SFDCContact)
-
-	if ok {
-		return getContact(id, sfdccontact)
-	}
-
-	return fmt.Errorf("unused sObject given. Webcore does not work with: %T", obj)
-}
-
-func getAccount(id string, sobject *SFDCAccount) (err error) {
-	sobject.SalesForceID = id
-
-	// used to return a valid SiteID during create test
-	if id == "001d000001TweFmAAJ" {
-		sobject.SiteID = "5740"
-	}
-
-	// used to return an invalid SiteID during create test
-	if id == "001d000001TweFmZZZ" {
-		sobject.SiteID = "a5740"
-	}
-
-	return getQueryError()
-}
-
-func getContact(id string, sobject *SFDCContact) (err error) {
-	sobject.SalesForceID = id
-
-	return getQueryError()
-}
-
-func (m mockClient) GetSFDCObjectByExternalID(id string, obj interface{}) (err error) {
-	sobject, ok := obj.(*SFDCAccount)
-	if !ok {
-		err = fmt.Errorf("unable to convert data to SFDCAccount. Unexpected type: %T", obj)
-		return err
-	}
-
-	// mock a non-existing account
-	if id == "9999999" {
-		err = fmt.Errorf("unable to find account with ID: %s", id)
-		return err
-	}
-
-	sobject.SiteID = id
-	return getQueryError()
-}
-
-func (m mockClient) InsertSFDCObject(obj interface{}) (resposne SFDCResponse, err error) {
-	return getSFDCResposne(), getCommandError()
-}
-
-func (m mockClient) UpsertSFDCObjectByExternalID(id string, obj interface{}) (err error) {
-	return getCommandError()
-}
-
-func (m mockClient) QuerySFDCObject(query string, obj interface{}) (err error) {
-	return nil
-}
 
 func TestAccountApiName(t *testing.T) {
 	Convey("Given an SFDCAccount object", t, func() {
@@ -161,6 +73,29 @@ func TestGetAccount(t *testing.T) {
 				})
 			})
 		}
+	})
+}
+
+func TestQueryAccounts(t *testing.T) {
+	Convey("Given a valid query", t, func() {
+		query := "select Id, Name from Account where Name = 'Test Account'"
+		Convey("When querying for accounts", func() {
+			accounts, err := api.QueryAccounts(query)
+			Convey("Then a list of accounts should be returned", func() {
+				So(accounts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid query", t, func() {
+		query := "delect Id, Name from Account where Name = 'Test Account'"
+		Convey("When querying for accounts", func() {
+			accounts, err := api.QueryAccounts(query)
+			Convey("Then an error should be returned", func() {
+				So(accounts, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
 	})
 }
 
@@ -256,6 +191,33 @@ func TestUpdateAccount(t *testing.T) {
 		Reset(func() {
 			getCommandError = func() error { return nil }
 			getQueryError = func() error { return nil }
+		})
+	})
+}
+
+func TestGetContactCount(t *testing.T) {
+	Convey("Given a valid account ID", t, func() {
+		accountID := "001d000001TwgVCAAZ"
+		Convey("When retrieving the contact count", func() {
+			count, err := api.GetContactCount(accountID)
+			Convey("A number greater than zero should be returned", func() {
+				So(count, ShouldBeGreaterThan, 0)
+			})
+			Convey("And no error should be returned", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid account ID", t, func() {
+		accountID := "12345"
+		Convey("When retrieving the contact count", func() {
+			count, err := api.GetContactCount(accountID)
+			Convey("Then an error should be returned", func() {
+				So(err, ShouldNotBeNil)
+			})
+			Convey("And a count of 0 should be returned", func() {
+				So(count, ShouldBeZeroValue)
+			})
 		})
 	})
 }

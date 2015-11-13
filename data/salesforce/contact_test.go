@@ -7,6 +7,8 @@ import (
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 )
 
+var contactQueryBuilder = SFDCContactQueryBuilder{}
+
 func TestContactApiName(t *testing.T) {
 	Convey("Given an SFDCContact object", t, func() {
 		contact := SFDCContact{}
@@ -23,9 +25,9 @@ func TestContactExternalIdApiName(t *testing.T) {
 	Convey("Given an SFDCContact object", t, func() {
 		contact := SFDCContact{}
 		Convey("When the External ID API name is requested", func() {
-			externalId := contact.ExternalIdApiName()
+			externalID := contact.ExternalIdApiName()
 			Convey("Then 'Username' should be returned", func() {
-				So(externalId, ShouldEqual, "eBus_Contact_ID__c")
+				So(externalID, ShouldEqual, "eBus_Contact_ID__c")
 			})
 		})
 	})
@@ -58,5 +60,76 @@ func TestGetContact(t *testing.T) {
 				})
 			})
 		}
+	})
+}
+
+func TestQueryContacts(t *testing.T) {
+	Convey("Given a valid query", t, func() {
+		id := "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF"
+		Convey("When requesting a list of contacts", func() {
+			contacts, err := api.QueryContacts("select Id, Name, Account, CurrencyISOCode, BBAuthID__c from Contact " +
+				"where BBAuthID__c = " + id)
+			Convey("Then a list of Contacts should be returned", func() {
+				So(len(contacts), ShouldBeGreaterThan, 0)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid query", t, func() {
+		id := ""
+		Convey("When requesting a list of contacts", func() {
+			contacts, err := api.QueryContacts("delect Id, Name, Account, CurrencyISOCode, BBAuthID__c from Contact " +
+				"where BBAuthID__c = " + id)
+			Convey("Then an empty list and an error should be returned", func() {
+				So(len(contacts), ShouldBeZeroValue)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetByAuthID(t *testing.T) {
+	Convey("Given a valid Auth ID", t, func() {
+		id := "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF"
+		Convey("When requesting a contact query string", func() {
+			query, err := contactQueryBuilder.GetByAuthID(id)
+			Convey("Then a query string should be returned", func() {
+				So(query, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid AuthID", t, func() {
+		id := "12345"
+		Convey("When requesting a contact query string", func() {
+			query, err := contactQueryBuilder.GetByAuthID(id)
+			Convey("Then an error should be returned", func() {
+				So(query, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetByEmail(t *testing.T) {
+	Convey("Given a valid email", t, func() {
+		email := "erik.tate@blackbaud.com"
+		Convey("When requesting a contact query string", func() {
+			query, err := contactQueryBuilder.GetByEmail(email)
+			Convey("Then a query string should be returned", func() {
+				So(query, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid email", t, func() {
+		email := "erik.tateblackbaud.com"
+		Convey("When requesting a contact query string", func() {
+			query, err := contactQueryBuilder.GetByEmail(email)
+			Convey("Then an error should be returned", func() {
+				So(query, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
 	})
 }

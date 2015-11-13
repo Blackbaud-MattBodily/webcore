@@ -3,6 +3,7 @@ package salesforce
 import (
 	"errors"
 	"fmt"
+	"regexp"
 
 	"github.com/blackbaudIT/webcore/entities"
 	"github.com/blackbaudIT/webcore/services"
@@ -20,6 +21,7 @@ type SFDCContactQueryResponse struct {
 	Records []*services.ContactDTO `json:"Records" force:"records"`
 }
 
+//SFDCContactQueryBuilder contains function required to meet the ContactQueryBuilder interface specification.
 type SFDCContactQueryBuilder struct {
 }
 
@@ -56,16 +58,6 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	return &contact.ContactDTO, nil
 }
 
-//GetContactCount returns the number of salesforce contacts currently associated with an account.
-func (a API) GetContactCount(accountId string) (int, error) {
-	queryResponse := &SFDCContactQueryResponse{}
-	query := "SELECT count() FROM Contact WHERE AccountId = '" + accountId + "'"
-
-	err := a.client.QuerySFDCObject(query, queryResponse)
-
-	return int(queryResponse.TotalSize), err
-}
-
 //QueryContacts returns a slice of SFDCContacts that represents the results of the SOQL query given.
 func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 	queryResponse := &SFDCContactQueryResponse{}
@@ -75,39 +67,25 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 	return queryResponse.Records, err
 }
 
-//CreateContact creates a new SFDC Contact.
-func (a API) CreateContact(contact *entities.Contact) (string, string, error) {
-	dto := services.ConvertContactEntityToContactDTO(contact)
-
-	sfdcContact := SFDCContact{ContactDTO: *dto}
-	resp, err := a.client.InsertSFDCObject(sfdcContact)
-
-	if err != nil {
-		return "", "", fmt.Errorf("Error creating contact in SFDC: %s", err)
-	}
-
-	if !resp.Success {
-		return "", "", fmt.Errorf("Error creating contact in SFDC: %s", resp.ErrorMessage)
-	}
-
-	newContact := &SFDCContact{}
-	err = a.client.GetSFDCObject(resp.ID, newContact)
-
-	if err != nil {
-		return "", "", fmt.Errorf("Error getting newly created contact: %s", err)
-	}
-
-	return resp.ID, newContact.Name, nil
-}
-
 //UpdateContact updates a given contact.
 func (a API) UpdateContact(contact *entities.Contact) error {
 	return nil
 }
 
+//UpdateUser updates all contacts associated with a given authID.
+func (a API) UpdateUser(authID string) error {
+	return nil
+}
+
 //GetByAuthID returns a contact query string that selects contacts with the given
 //BBAuthID.
-func (b SFDCContactQueryBuilder) GetByAuthID(id string) string {
+func (b SFDCContactQueryBuilder) GetByAuthID(id string) (string, error) {
+	match, err := regexp.MatchString("[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}", id)
+
+	if err != nil || !match {
+		return "", fmt.Errorf("BBAuthID incorrectly formatted: %s", err)
+	}
+
 	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
@@ -118,12 +96,18 @@ func (b SFDCContactQueryBuilder) GetByAuthID(id string) string {
 		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
 		"WHERE BBAuthID__c = '" + id + "'"
 
-	return query
+	return query, nil
 }
 
 //GetByEmail returns a contact query string that selects contacts with the given
 //BBAuth Email.
-func (b SFDCContactQueryBuilder) GetByEmail(email string) string {
+func (b SFDCContactQueryBuilder) GetByEmail(email string) (string, error) {
+	match, err := regexp.MatchString(".+@.+", email)
+
+	if err != nil || !match {
+		return "", fmt.Errorf("Email incorrectly formatted: %s", err)
+	}
+
 	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
@@ -134,5 +118,5 @@ func (b SFDCContactQueryBuilder) GetByEmail(email string) string {
 		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
 		"WHERE BBAuth_Email__c = '" + email + "'"
 
-	return query
+	return query, nil
 }
