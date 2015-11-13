@@ -7,8 +7,6 @@ import (
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
 )
 
-var contactQueryBuilder = SFDCContactQueryBuilder{}
-
 func TestContactApiName(t *testing.T) {
 	Convey("Given an SFDCContact object", t, func() {
 		contact := SFDCContact{}
@@ -92,7 +90,7 @@ func TestGetByAuthID(t *testing.T) {
 	Convey("Given a valid Auth ID", t, func() {
 		id := "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF"
 		Convey("When requesting a contact query string", func() {
-			query, err := contactQueryBuilder.GetByAuthID(id)
+			query, err := api.GetByAuthID(id)
 			Convey("Then a query string should be returned", func() {
 				So(query, ShouldNotBeEmpty)
 				So(err, ShouldBeNil)
@@ -102,7 +100,7 @@ func TestGetByAuthID(t *testing.T) {
 	Convey("Given an invalid AuthID", t, func() {
 		id := "12345"
 		Convey("When requesting a contact query string", func() {
-			query, err := contactQueryBuilder.GetByAuthID(id)
+			query, err := api.GetByAuthID(id)
 			Convey("Then an error should be returned", func() {
 				So(query, ShouldBeEmpty)
 				So(err, ShouldNotBeNil)
@@ -115,7 +113,7 @@ func TestGetByEmail(t *testing.T) {
 	Convey("Given a valid email", t, func() {
 		email := "erik.tate@blackbaud.com"
 		Convey("When requesting a contact query string", func() {
-			query, err := contactQueryBuilder.GetByEmail(email)
+			query, err := api.GetByEmail(email)
 			Convey("Then a query string should be returned", func() {
 				So(query, ShouldNotBeEmpty)
 				So(err, ShouldBeNil)
@@ -125,7 +123,7 @@ func TestGetByEmail(t *testing.T) {
 	Convey("Given an invalid email", t, func() {
 		email := "erik.tateblackbaud.com"
 		Convey("When requesting a contact query string", func() {
-			query, err := contactQueryBuilder.GetByEmail(email)
+			query, err := api.GetByEmail(email)
 			Convey("Then an error should be returned", func() {
 				So(query, ShouldBeEmpty)
 				So(err, ShouldNotBeNil)

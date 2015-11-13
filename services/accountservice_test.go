@@ -234,6 +234,19 @@ func TestGetAccount(t *testing.T) {
 	})
 }
 
+func TestQueryAccounts(t *testing.T) {
+	Convey("Given a query string", t, func() {
+		query := "select Id, Name from Account where Name = 'Test Org Name'"
+		Convey("When a list of accounts are requested from the AccountService", func() {
+			accounts, err := accountService.QueryAccounts(query)
+			Convey("Then a list of Account Data Transfer Objects is returned", func() {
+				So(accounts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
 func TestCreateAccount(t *testing.T) {
 	Convey("Given a valid Account DTO", t, func() {
 		Convey("When an account is created through the AccountService", func() {

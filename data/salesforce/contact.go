@@ -21,10 +21,6 @@ type SFDCContactQueryResponse struct {
 	Records []*services.ContactDTO `json:"Records" force:"records"`
 }
 
-//SFDCContactQueryBuilder contains function required to meet the ContactQueryBuilder interface specification.
-type SFDCContactQueryBuilder struct {
-}
-
 //ApiName is the SFDC ApiName of the Contact object.
 func (s SFDCContact) ApiName() string {
 	return "Contact"
@@ -79,7 +75,7 @@ func (a API) UpdateUser(authID string) error {
 
 //GetByAuthID returns a contact query string that selects contacts with the given
 //BBAuthID.
-func (b SFDCContactQueryBuilder) GetByAuthID(id string) (string, error) {
+func (a API) GetByAuthID(id string) (string, error) {
 	match, err := regexp.MatchString("[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}", id)
 
 	if err != nil || !match {
@@ -101,7 +97,7 @@ func (b SFDCContactQueryBuilder) GetByAuthID(id string) (string, error) {
 
 //GetByEmail returns a contact query string that selects contacts with the given
 //BBAuth Email.
-func (b SFDCContactQueryBuilder) GetByEmail(email string) (string, error) {
+func (a API) GetByEmail(email string) (string, error) {
 	match, err := regexp.MatchString(".+@.+", email)
 
 	if err != nil || !match {

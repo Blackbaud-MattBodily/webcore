@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
@@ -28,15 +29,42 @@ type mockContactRepository struct {
 }
 
 func (m mockContactRepository) GetContact(id string) (*ContactDTO, error) {
-	return &contactDTO, nil
+	if len(id) > 0 {
+		return &contactDTO, nil
+	}
+	return nil, errors.New("An ID must be provided to get a contact")
 }
 
 func (m mockContactRepository) QueryContacts(query string) ([]*ContactDTO, error) {
-	return nil, nil
+	var contacts []*ContactDTO
+	err := errors.New("Bad query")
+
+	if query == "success!" {
+		contacts = append(contacts, &contactDTO)
+		err = nil
+	}
+
+	return contacts, err
 }
 
 func (m mockContactRepository) UpdateContact(contact *entities.Contact) error {
 	return nil
+}
+
+func (m mockContactRepository) GetByAuthID(authID string) (string, error) {
+	if len(authID) > 0 {
+		return "success!", nil
+	}
+
+	return "", errors.New("Must provide a valid authID")
+}
+
+func (m mockContactRepository) GetByEmail(email string) (string, error) {
+	if len(email) > 0 {
+		return "success!", nil
+	}
+
+	return "", errors.New("Must provide a valid email address")
 }
 
 func TestContactDTOToEntity(t *testing.T) {
@@ -95,10 +123,125 @@ func TestConvertContactEntityToContactDTO(t *testing.T) {
 }
 
 func TestNewContactService(t *testing.T) {
-	Convey("Given a valid ContactRepo", func() {
+	Convey("Given a valid ContactRepo", t, func() {
 		contactRepo := mockContactRepository{}
 		Convey("When a new contact service is requested", func() {
 			cs := NewContactService(contactRepo)
+			Convey("A pointer to a contact is returned", func() {
+				So(cs, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetContact(t *testing.T) {
+	Convey("Given a Contact ID", t, func() {
+		id := "003d0000026MOlUAAW"
+		Convey("When a contact is requested", func() {
+			cs := NewContactService(mockContactRepository{})
+			contact, err := cs.GetContact(id)
+			Convey("A Contact Data Transfer Object is returned", func() {
+				So(contact, ShouldNotBeNil)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an empty Contact ID", t, func() {
+		id := ""
+		Convey("When a contact is requested", func() {
+			cs := NewContactService(mockContactRepository{})
+			_, err := cs.GetContact(id)
+			Convey("An error should occur", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetContactsByEmail(t *testing.T) {
+	Convey("Given an email", t, func() {
+		email := "erik.tate@blackbaud.com"
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByEmail(email)
+			Convey("A list of contacts should be returned", func() {
+				So(contacts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given a blank email", t, func() {
+		email := ""
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByEmail(email)
+			Convey("An error should occur and no contacts should be returned", func() {
+				So(contacts, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestGetContactsByAuthID(t *testing.T) {
+	Convey("Given an auth ID", t, func() {
+		id := "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF"
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByAuthID(id)
+			Convey("A list of contacts should be returned", func() {
+				So(contacts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an empty auth ID", t, func() {
+		id := ""
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByAuthID(id)
+			Convey("An error should occur and no contacts should be returned", func() {
+				So(contacts, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestQueryContactsByAuthID(t *testing.T) {
+	Convey("Given a contact query string", t, func() {
+		query := "success!"
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.QueryContacts(query)
+			Convey("A list of contacts should be returned", func() {
+				So(contacts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given a blank contact query string", t, func() {
+		query := ""
+		Convey("When a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.QueryContacts(query)
+			Convey("An error should occur and no contacts should be returned", func() {
+				So(contacts, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestUpdateContact(t *testing.T) {
+	Convey("Given a contact entity", t, func() {
+		contact, _ := contactDTO.toEntity()
+		Convey("When an update is attempted", func() {
+			cs := NewContactService(mockContactRepository{})
+			err := cs.UpdateContact(contact)
+			Convey("Then no error should occur", func() {
+				So(err, ShouldBeNil)
+			})
 		})
 	})
 }

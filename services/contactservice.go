@@ -127,10 +127,6 @@ func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, err
 	}
 	contacts, err := cs.ContactRepo.QueryContacts(query)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	return contacts, err
 }
 
@@ -141,14 +137,8 @@ func (cs *ContactService) QueryContacts(query string) ([]*ContactDTO, error) {
 	return contacts, err
 }
 
-//UpdateContact updates a contact represented by a ContactDTO.
-func (cs *ContactService) UpdateContact(c ContactDTO) error {
-	contact, err := c.toEntity()
-
-	if err != nil {
-		return err
-	}
-
-	err = cs.ContactRepo.UpdateContact(contact)
+//UpdateContact updates a contact..
+func (cs *ContactService) UpdateContact(contact *entities.Contact) error {
+	err := cs.ContactRepo.UpdateContact(contact)
 	return err
 }
