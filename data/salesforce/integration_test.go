@@ -1,6 +1,7 @@
 package salesforce
 
 import (
+	"log"
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
@@ -150,6 +151,36 @@ func TestInvalidConfig(t *testing.T) {
 			f := func() { getForceAPIClient() }
 			Convey("Then the application should panic", func() {
 				So(f, ShouldPanic)
+			})
+		})
+	})
+}
+
+func TestQuerySFDCAssets(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
+	Convey("Given a valid ID", t, func() {
+		id := "001d000001TweFmAAJ"
+		Convey("When requesting assets", func() {
+			query := qasAPI.BuildAssetsByAccountIDQuery(id)
+			assets, err := qasAPI.QueryAssets(query)
+			Convey("Then an AssetDTO is returned", func() {
+				So(err, ShouldBeNil)
+				So(len(assets), ShouldBeGreaterThan, 0)
+				log.Println(assets[0])
+			})
+		})
+	})
+	Convey("Given an invalid ID", t, func() {
+		id := "002d000001TweFmAAJ"
+		Convey("When requesting an account", func() {
+			query := qasAPI.BuildAssetsByAccountIDQuery(id)
+			assets, err := qasAPI.QueryAssets(query)
+			Convey("Then no assets are returned", func() {
+				So(err, ShouldBeNil)
+				So(len(assets), ShouldEqual, 0)
 			})
 		})
 	})

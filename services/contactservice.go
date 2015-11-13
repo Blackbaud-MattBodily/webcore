@@ -24,19 +24,19 @@ type ContactQueryBuilder interface {
 //ContactDTO is a data transfer object for entities.Contact
 type ContactDTO struct {
 	//AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
-	Name              string      `json:"name,omitempty" force:"Name,omitempty"`
-	SalesForceID      string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
-	Email             string      `json:"email,omitempty" force:"Email,omitempty"`
-	Phone             string      `json:"phone,omitempty" force:"Phone,omitempty"`
-	Fax               string      `json:"fax,omitempty" force:"Fax,omitempty"`
-	Title             string      `json:"title,omitempty" force:"Title,omitempty"`
-	Account           *AccountDTO `json:"account,omitempty" force:"Account,omitempty"`
-	SFDCContactStatus string      `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
-	Currency          string      `json:"currency,omitempty" force:"CurrencyIsoCode"`
-	BBAuthID          string      `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
-	BBAuthEmail       string      `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
-	BBAuthFirstName   string      `json:"bbAuthFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
-	BBAuthLastName    string      `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
+	Name            string      `json:"name,omitempty" force:"Name,omitempty"`
+	SalesForceID    string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
+	Email           string      `json:"email,omitempty" force:"Email,omitempty"`
+	Phone           string      `json:"phone,omitempty" force:"Phone,omitempty"`
+	Fax             string      `json:"fax,omitempty" force:"Fax,omitempty"`
+	Title           string      `json:"title,omitempty" force:"Title,omitempty"`
+	Account         *AccountDTO `json:"account,omitempty" force:"Account,omitempty"`
+	Status          string      `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
+	Currency        string      `json:"currency,omitempty" force:"CurrencyIsoCode"`
+	BBAuthID        string      `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
+	BBAuthEmail     string      `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
+	BBAuthFirstName string      `json:"bbAuthFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
+	BBAuthLastName  string      `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
 }
 
 func (c *ContactDTO) toEntity() (*entities.Contact, error) {
@@ -61,7 +61,7 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 	contact.Fax = c.Fax
 	contact.Title = c.Title
 	contact.SetEmail(c.Email)
-	contact.SetStatus(c.SFDCContactStatus)
+	contact.SetStatus(c.Status)
 	contact.SetBBAuthID(c.BBAuthID)
 	contact.SetBBAuthEmail(c.BBAuthEmail)
 	contact.SetBBAuthFirstName(c.BBAuthFirstName)
@@ -73,17 +73,17 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
 func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 	dto := &ContactDTO{
-		Name:              contact.Name(),
-		Email:             contact.Email(),
-		Phone:             contact.Phone,
-		Fax:               contact.Fax,
-		Title:             contact.Title,
-		Account:           ConvertAccountEntityToAccountDTO(contact.Account()),
-		SFDCContactStatus: contact.Status(),
-		BBAuthID:          contact.BBAuthID(),
-		BBAuthEmail:       contact.BBAuthEmail(),
-		BBAuthFirstName:   contact.BBAuthFirstName(),
-		BBAuthLastName:    contact.BBAuthLastName(),
+		Name:            contact.Name(),
+		Email:           contact.Email(),
+		Phone:           contact.Phone,
+		Fax:             contact.Fax,
+		Title:           contact.Title,
+		Account:         ConvertAccountEntityToAccountDTO(contact.Account()),
+		Status:          contact.Status(),
+		BBAuthID:        contact.BBAuthID(),
+		BBAuthEmail:     contact.BBAuthEmail(),
+		BBAuthFirstName: contact.BBAuthFirstName(),
+		BBAuthLastName:  contact.BBAuthLastName(),
 	}
 	return dto
 }
