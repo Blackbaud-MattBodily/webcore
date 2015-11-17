@@ -66,7 +66,7 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 //GetByAuthID returns a contact query string that selects contacts with the given
 //BBAuthID.
 func (a API) GetByAuthID(id string) (string, error) {
-	match, err := regexp.MatchString("[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}", id)
+	match, err := regexp.MatchString("[A-Za-z0-9]{8}-([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{12}", id)
 
 	if err != nil || !match {
 		return "", fmt.Errorf("BBAuthID incorrectly formatted: %s", err)
