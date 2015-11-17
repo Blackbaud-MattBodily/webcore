@@ -120,7 +120,7 @@ func (cs *ContactService) GetContactsByEmail(email string) ([]*ContactDTO, error
 
 //GetContactsByAuthID returns all contact records associated with a given BBAuthID
 func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, error) {
-	query, err := cs.ContactRepo.GetByEmail(authID)
+	query, err := cs.ContactRepo.GetByAuthID(authID)
 
 	if err != nil {
 		return make([]*ContactDTO, 0), err
