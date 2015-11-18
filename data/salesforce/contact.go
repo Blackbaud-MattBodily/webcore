@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/blackbaudIT/webcore/entities"
 	"github.com/blackbaudIT/webcore/services"
 )
 
@@ -108,10 +107,16 @@ func (a API) GetByEmail(email string) (string, error) {
 }
 
 //UpdateContact updates a given contact.
-func (a API) UpdateContact(c *entities.Contact) error {
-	contact := services.ConvertContactEntityToContactDTO(c)
-
+func (a API) UpdateContact(contact *services.ContactDTO) error {
+	//This is a bit weird, but we can't update a record if the ID is part of the
+	//object and updates fail whenever we try and set the Account field on the
+	//contact object. Since we don't have a reason yet to update a contact with
+	//a new account, this isn't majorly impacting. However, in the future we'll
+	//need to figure out a way around this.
 	sfdcContact := SFDCContact{ContactDTO: *contact}
+	id := sfdcContact.SalesForceID
+	sfdcContact.SalesForceID = ""
+	sfdcContact.Account = nil
 
-	return a.client.UpdateSFDCObject(sfdcContact.SalesForceID, sfdcContact)
+	return a.client.UpdateSFDCObject(id, sfdcContact)
 }

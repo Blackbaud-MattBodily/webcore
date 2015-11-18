@@ -7,6 +7,7 @@ import "errors"
 
 //Contact is a Blackbaud Contact entity.
 type Contact struct {
+	id              string
 	name            string
 	email           string
 	Phone           string
@@ -49,6 +50,11 @@ func NewContact(name string, account *Account, currency CurrencyType) (*Contact,
 	}
 
 	return &Contact{name: name, account: account, Currency: currency}, nil
+}
+
+//ID of the contact.
+func (c *Contact) ID() string {
+	return c.id
 }
 
 //Name of the contact.
@@ -98,6 +104,12 @@ func (c *Contact) SetName(name string) error {
 	}
 
 	c.name = name
+	return nil
+}
+
+//SetID sets the contact's ID.
+func (c *Contact) SetID(id string) error {
+	c.id = id
 	return nil
 }
 

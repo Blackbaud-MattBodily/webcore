@@ -76,3 +76,25 @@ func (h *ContactHandler) GetContactsByAuthID(w http.ResponseWriter, r *http.Requ
 
 	w.Write(data)
 }
+
+//UpdateContact responds to an HTTP request to update a contact record.
+func (h *ContactHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
+	service := &services.ContactService{ContactRepo: h.contactRepo}
+	decoder := json.NewDecoder(r.Body)
+	rcv := &services.ContactDTO{}
+
+	err := decoder.Decode(rcv)
+
+	if err != nil {
+		log.Printf("ContactHandler.UpdateContact Failed to decode contact: %s", err)
+	}
+
+	contact, err := rcv.ToEntity()
+	err = service.UpdateContact(contact)
+
+	if err != nil {
+		log.Printf("ContactHandler.UpdateContact Failed to update contact: %s", err)
+	}
+
+	w.Write([]byte("{\"status\":true}"))
+}

@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/blackbaudIT/webcore/entities"
 )
@@ -12,7 +13,7 @@ type ContactRepository interface {
 	ContactQueryBuilder
 	GetContact(id string) (*ContactDTO, error)
 	QueryContacts(query string) ([]*ContactDTO, error)
-	UpdateContact(contact *entities.Contact) error
+	UpdateContact(contact *ContactDTO) error
 }
 
 //ContactQueryBuilder is an interface for building Contact queries.
@@ -24,7 +25,8 @@ type ContactQueryBuilder interface {
 //ContactDTO is a data transfer object for entities.Contact
 type ContactDTO struct {
 	//AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
-	Name            string      `json:"name,omitempty" force:"Name,omitempty"`
+	FirstName       string      `json:"firstName,omitempty" force:"FirstName,omitempty"`
+	LastName        string      `json:"lastName,omitempty" force:"LastName,omitempty"`
 	SalesForceID    string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
 	Email           string      `json:"email,omitempty" force:"Email,omitempty"`
 	Phone           string      `json:"phone,omitempty" force:"Phone,omitempty"`
@@ -39,7 +41,8 @@ type ContactDTO struct {
 	BBAuthLastName  string      `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
 }
 
-func (c *ContactDTO) toEntity() (*entities.Contact, error) {
+//ToEntity converts a ContactDTO into a Contact entity.
+func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 	if c.Account == nil {
 		return nil, errors.New("Nil value passed as AccountDTO")
 	}
@@ -50,7 +53,7 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 		return nil, errors.New("Failed to convert AccountDTO to account")
 	}
 
-	contact, err := entities.NewContact(c.Name, account, entities.CurrencyType(c.Currency))
+	contact, err := entities.NewContact(fmt.Sprintf("%s %s", c.FirstName, c.LastName), account, entities.CurrencyType(c.Currency))
 
 	if err != nil {
 		return contact,
@@ -60,6 +63,7 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 	contact.Phone = c.Phone
 	contact.Fax = c.Fax
 	contact.Title = c.Title
+	contact.SetID(c.SalesForceID)
 	contact.SetEmail(c.Email)
 	contact.SetStatus(c.Status)
 	contact.SetBBAuthID(c.BBAuthID)
@@ -72,8 +76,21 @@ func (c *ContactDTO) toEntity() (*entities.Contact, error) {
 
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
 func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
+	var firstName string
+	var lastName string
+	name := strings.Split(contact.Name(), " ")
+
+	if len(name) > 1 {
+		firstName = name[0]
+		lastName = name[1]
+	} else {
+		lastName = name[0]
+	}
+
 	dto := &ContactDTO{
-		Name:            contact.Name(),
+		FirstName:       firstName,
+		LastName:        lastName,
+		SalesForceID:    contact.ID(),
 		Email:           contact.Email(),
 		Phone:           contact.Phone,
 		Fax:             contact.Fax,
@@ -99,9 +116,10 @@ func NewContactService(repo ContactRepository) *ContactService {
 	return &ContactService{ContactRepo: repo}
 }
 
-//GetContact returns a Contact by SFDC ID.
+//GetContact returns a Contact entity by SFDC ID.
 func (cs *ContactService) GetContact(id string) (*ContactDTO, error) {
 	c, err := cs.ContactRepo.GetContact(id)
+
 	return c, err
 }
 
@@ -139,6 +157,6 @@ func (cs *ContactService) QueryContacts(query string) ([]*ContactDTO, error) {
 
 //UpdateContact updates a contact..
 func (cs *ContactService) UpdateContact(contact *entities.Contact) error {
-	err := cs.ContactRepo.UpdateContact(contact)
+	err := cs.ContactRepo.UpdateContact(ConvertContactEntityToContactDTO(contact))
 	return err
 }
