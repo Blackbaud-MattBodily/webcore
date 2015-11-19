@@ -79,7 +79,7 @@ func (a API) GetByAuthID(id string) (string, error) {
 		return "", fmt.Errorf("BBAuthID incorrectly formatted: %s", err)
 	}
 
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+	query := "SELECT Id, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
@@ -101,7 +101,7 @@ func (a API) GetByEmail(email string) (string, error) {
 		return "", fmt.Errorf("Email incorrectly formatted: %s", err)
 	}
 
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+	query := "SELECT Id, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
