@@ -17,6 +17,7 @@ type Account struct {
 	PrimaryAddress  *Address
 	BillingAddress  *Address
 	ShippingAddress *Address
+	ContactCount    int
 }
 
 // NewAccount creates a valid Account object (with required fields)
