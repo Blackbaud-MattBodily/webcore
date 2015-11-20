@@ -36,8 +36,6 @@ func (s SFDCAccount) ExternalIdApiName() string {
 // GetAccount returns a SalesForce account for the ID specified
 func (a API) GetAccount(id string) (*services.AccountDTO, error) {
 	account := &SFDCAccount{}
-	count, _ := a.GetContactCount(id)
-	account.ContactCount = count
 
 	accountLookupFunc, err := a.getForceAPILookupFunction(id)
 	if err != nil {

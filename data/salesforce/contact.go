@@ -59,14 +59,6 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 
 	err := a.client.QuerySFDCObject(query, queryResponse)
 
-	//This is kind of ugly, but I don't know of a better way to get this information
-	//on the AccountDTO.
-	for _, contact := range queryResponse.Records {
-		//TODO: Come back and add error handling.
-		count, _ := a.GetContactCount(contact.Account.SalesForceID)
-		contact.Account.ContactCount = count
-	}
-
 	return queryResponse.Records, err
 }
 

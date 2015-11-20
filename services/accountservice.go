@@ -41,7 +41,6 @@ type AccountDTO struct {
 	ShippingState   string `json:"shippingState,omitempty" force:"Physical_State_Province__c,omitempty"`
 	ShippingZipCode string `json:"shippingZipCode,omitempty" force:"Physical_Zip_Postal_Code__c,omitempty"`
 	ShippingCountry string `json:"shippingCountry,omitempty" force:"Physical_Country__c,omitempty"`
-	ContactCount    int    `json:"contactCount,omitempty" force:"-"`
 }
 
 func (a *AccountDTO) toEntity() (*entities.Account, error) {
@@ -54,7 +53,6 @@ func (a *AccountDTO) toEntity() (*entities.Account, error) {
 
 	account.Payer = a.Payer
 	account.Industry = a.Industry
-	account.ContactCount = a.ContactCount
 
 	if a.SiteID != "" {
 		siteID, err := strconv.Atoi(a.SiteID)
@@ -120,7 +118,6 @@ func ConvertAccountEntityToAccountDTO(account *entities.Account) *AccountDTO {
 		BusinessUnit: string(account.BusinessUnit()),
 		Industry:     account.Industry,
 		Payer:        account.Payer,
-		ContactCount: account.ContactCount,
 	}
 
 	if account.PrimaryAddress != nil {
