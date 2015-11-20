@@ -31,22 +31,16 @@ func updateContactExample() {
 	data, _ := json.Marshal(contactDTOs[0])
 
 	fmt.Println(string(data))
+	contactDTOs[0].BBAuthFirstName = "Eriq"
 
-	contact, err := contactDTOs[0].ToEntity()
-
-	if err != nil {
-		fmt.Printf("Failed to convert DTO to entity: %s \n", err)
-	}
-
-	contact.SetBBAuthFirstName("Eriq")
-
-	err = contactService.UpdateContact(contact)
+	err := contactService.UpdateContact(contactDTOs[0])
 
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("DONE!")
 }
+
 func getContactsWithAccountExample() {
 	contacts, err := contactService.GetContactsByAuthID("32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF")
 

@@ -235,11 +235,10 @@ func TestQueryContactsByAuthID(t *testing.T) {
 }
 
 func TestUpdateContact(t *testing.T) {
-	Convey("Given a contact entity", t, func() {
-		contact, _ := contactDTO.ToEntity()
+	Convey("Given a contact DTO", t, func() {
 		Convey("When an update is attempted", func() {
 			cs := NewContactService(mockContactRepository{})
-			err := cs.UpdateContact(contact)
+			err := cs.UpdateContact(&contactDTO)
 			Convey("Then no error should occur", func() {
 				So(err, ShouldBeNil)
 			})

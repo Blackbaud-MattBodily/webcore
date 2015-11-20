@@ -153,7 +153,13 @@ func (cs *ContactService) QueryContacts(query string) ([]*ContactDTO, error) {
 }
 
 //UpdateContact updates a contact..
-func (cs *ContactService) UpdateContact(contact *entities.Contact) error {
-	err := cs.ContactRepo.UpdateContact(ConvertContactEntityToContactDTO(contact))
+func (cs *ContactService) UpdateContact(contactDTO *ContactDTO) error {
+	contact, err := contactDTO.ToEntity()
+
+	if err != nil {
+		return err
+	}
+
+	err = cs.ContactRepo.UpdateContact(ConvertContactEntityToContactDTO(contact))
 	return err
 }

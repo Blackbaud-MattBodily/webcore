@@ -81,15 +81,14 @@ func (h *ContactHandler) GetContactsByAuthID(w http.ResponseWriter, r *http.Requ
 func (h *ContactHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
 	service := &services.ContactService{ContactRepo: h.contactRepo}
 	decoder := json.NewDecoder(r.Body)
-	rcv := &services.ContactDTO{}
+	contact := &services.ContactDTO{}
 
-	err := decoder.Decode(rcv)
+	err := decoder.Decode(contact)
 
 	if err != nil {
 		log.Printf("ContactHandler.UpdateContact Failed to decode contact: %s", err)
 	}
 
-	contact, err := rcv.ToEntity()
 	err = service.UpdateContact(contact)
 
 	if err != nil {
