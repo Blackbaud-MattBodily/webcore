@@ -120,7 +120,7 @@ func queryContacts(query string, res *SFDCContactQueryResponse) error {
 
 	contacts := make([]*services.ContactDTO, 1)
 	account := &services.AccountDTO{Name: "Test Account"}
-	contact := &services.ContactDTO{Name: "Test Contact", Account: account, Currency: "US"}
+	contact := &services.ContactDTO{FirstName: "Test", LastName: "Contact", Account: account, Currency: "US"}
 	contacts[0] = contact
 
 	res.Records = contacts

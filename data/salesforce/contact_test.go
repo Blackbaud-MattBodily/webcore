@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
+	"github.com/blackbaudIT/webcore/services"
 )
 
 func TestContactApiName(t *testing.T) {
@@ -127,6 +128,19 @@ func TestGetByEmail(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(query, ShouldBeEmpty)
 				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestUpdateContact(t *testing.T) {
+	Convey("Given a valid contactDTO", t, func() {
+		contact := &services.ContactDTO{SalesForceID: "12345", LastName: "Tate", Currency: "USD - U.S. Dollar"}
+		Convey("When attemtping to update the first name field", func() {
+			contact.FirstName = "Erik"
+			err := api.UpdateContact(contact)
+			Convey("Then no error should be returned", func() {
+				So(err, ShouldBeNil)
 			})
 		})
 	})

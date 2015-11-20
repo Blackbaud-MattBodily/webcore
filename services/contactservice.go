@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/blackbaudIT/webcore/entities"
 )
@@ -25,6 +24,7 @@ type ContactQueryBuilder interface {
 //ContactDTO is a data transfer object for entities.Contact
 type ContactDTO struct {
 	//AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
+	Salutation      string      `json:"salutation,omitempty" force:"Salutation,omitempty"`
 	FirstName       string      `json:"firstName,omitempty" force:"FirstName,omitempty"`
 	LastName        string      `json:"lastName,omitempty" force:"LastName,omitempty"`
 	SalesForceID    string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
@@ -53,7 +53,13 @@ func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 		return nil, errors.New("Failed to convert AccountDTO to account")
 	}
 
-	contact, err := entities.NewContact(fmt.Sprintf("%s %s", c.FirstName, c.LastName), account, entities.CurrencyType(c.Currency))
+	name, err := entities.BuildName(c.Salutation, c.FirstName, c.LastName)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to build name: %s", err)
+	}
+
+	contact, err := entities.NewContact(name, account, entities.CurrencyType(c.Currency))
 
 	if err != nil {
 		return contact,
@@ -76,20 +82,11 @@ func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
 func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
-	var firstName string
-	var lastName string
-	name := strings.Split(contact.Name(), " ")
-
-	if len(name) > 1 {
-		firstName = name[0]
-		lastName = name[1]
-	} else {
-		lastName = name[0]
-	}
 
 	dto := &ContactDTO{
-		FirstName:       firstName,
-		LastName:        lastName,
+		Salutation:      contact.Name.Salutation,
+		FirstName:       contact.Name.FirstName,
+		LastName:        contact.Name.LastName(),
 		SalesForceID:    contact.ID(),
 		Email:           contact.Email(),
 		Phone:           contact.Phone,

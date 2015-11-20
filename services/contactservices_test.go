@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
-	"github.com/blackbaudIT/webcore/entities"
 )
 
 var contactDTO = ContactDTO{
-	Name:            "Erik Tate",
+	Salutation:      "Mr.",
+	FirstName:       "Erik",
+	LastName:        "Tate",
 	SalesForceID:    "003d0000026MOlUAAW",
 	Email:           "erik.tate@blackbaud.com",
 	Phone:           "(843)654-2566",
@@ -47,7 +48,7 @@ func (m mockContactRepository) QueryContacts(query string) ([]*ContactDTO, error
 	return contacts, err
 }
 
-func (m mockContactRepository) UpdateContact(contact *entities.Contact) error {
+func (m mockContactRepository) UpdateContact(contact *ContactDTO) error {
 	return nil
 }
 
@@ -68,11 +69,11 @@ func (m mockContactRepository) GetByEmail(email string) (string, error) {
 }
 
 func TestContactDTOToEntity(t *testing.T) {
-	Convey("Given a Contact Data Transfer object with an empty name", t, func() {
+	Convey("Given a Contact Data Transfer object with an empty last name", t, func() {
 		contactDTOCopy := contactDTO
-		contactDTOCopy.Name = ""
+		contactDTOCopy.LastName = ""
 		Convey("When attempting to convert to a Contact entity", func() {
-			_, err := contactDTOCopy.toEntity()
+			_, err := contactDTOCopy.ToEntity()
 			Convey("An error should occur", func() {
 				So(err, ShouldNotBeNil)
 			})
@@ -82,7 +83,7 @@ func TestContactDTOToEntity(t *testing.T) {
 		contactDTOCopy := contactDTO
 		contactDTOCopy.Account = nil
 		Convey("when attempting to convert to a Contact entity", func() {
-			_, err := contactDTOCopy.toEntity()
+			_, err := contactDTOCopy.ToEntity()
 			Convey("An error should occur", func() {
 				So(err, ShouldNotBeNil)
 			})
@@ -92,7 +93,7 @@ func TestContactDTOToEntity(t *testing.T) {
 		contactDTOCopy := contactDTO
 		contactDTOCopy.Currency = ""
 		Convey("When attempting to convert to a Contact entity", func() {
-			_, err := contactDTOCopy.toEntity()
+			_, err := contactDTOCopy.ToEntity()
 			Convey("An error should occur", func() {
 				So(err, ShouldNotBeNil)
 			})
@@ -101,7 +102,7 @@ func TestContactDTOToEntity(t *testing.T) {
 	Convey("Given a valid Contact Data Transfer object", t, func() {
 		contactDTOCopy := contactDTO
 		Convey("When attempting to convert to a Contact entity", func() {
-			contact, err := contactDTOCopy.toEntity()
+			contact, err := contactDTOCopy.ToEntity()
 			Convey("No error should occur", func() {
 				So(err, ShouldBeNil)
 				So(contact, ShouldNotBeNil)
@@ -112,7 +113,7 @@ func TestContactDTOToEntity(t *testing.T) {
 
 func TestConvertContactEntityToContactDTO(t *testing.T) {
 	Convey("Given a valid contact entity", t, func() {
-		contact, _ := contactDTO.toEntity()
+		contact, _ := contactDTO.ToEntity()
 		Convey("When attempting to convert to a ContactDTO", func() {
 			convertedContactDTO := ConvertContactEntityToContactDTO(contact)
 			Convey("Then a ContactDTO should be returned", func() {
@@ -235,7 +236,7 @@ func TestQueryContactsByAuthID(t *testing.T) {
 
 func TestUpdateContact(t *testing.T) {
 	Convey("Given a contact entity", t, func() {
-		contact, _ := contactDTO.toEntity()
+		contact, _ := contactDTO.ToEntity()
 		Convey("When an update is attempted", func() {
 			cs := NewContactService(mockContactRepository{})
 			err := cs.UpdateContact(contact)
