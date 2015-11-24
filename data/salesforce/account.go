@@ -20,7 +20,7 @@ type SFDCAccount struct {
 type SFDCAccountQueryResponse struct {
 	SFDCQueryResponse
 
-	Records []*SFDCAccount `json:"Records" force:"records"`
+	Records []*services.AccountDTO `json:"Records" force:"records"`
 }
 
 // ApiName is the SFDC ApiName of the Account object
@@ -80,20 +80,15 @@ func (a API) getForceAPILookupFunction(id string) (func(*SFDCAccount) error, err
 	return nil, errors.New("id cannot be 0")
 }
 
-//QueryAccounts returns a slice of ContactDTO pointers that represent the
+//QueryAccounts returns a slice of AccountDTO pointers that represent the
 //results of the given query.
 func (a API) QueryAccounts(query string) ([]*services.AccountDTO, error) {
+	//TODO: Need to retrieve the contact count for these accounts before returing slice.
 	queryResponse := &SFDCAccountQueryResponse{}
 
 	err := a.client.QuerySFDCObject(query, queryResponse)
-	accounts := make([]*services.AccountDTO, len(queryResponse.Records))
 
-	//Mapping the returned slice of *SFDCAccounts to a slice of *AccountDTOs
-	for index, dto := range queryResponse.Records {
-		accounts[index] = &dto.AccountDTO
-	}
-
-	return accounts, err
+	return queryResponse.Records, err
 }
 
 // CreateAccount creates a new SFDC Account and returns the Clarify Site ID
@@ -151,4 +146,14 @@ func (a API) UpdateAccount(account *entities.Account) error {
 	}
 
 	return nil
+}
+
+//GetContactCount returns the number of salesforce contacts currently associated with an account.
+func (a API) GetContactCount(accountID string) (int, error) {
+	queryResponse := &SFDCContactQueryResponse{}
+	query := "SELECT count() FROM Contact WHERE AccountId = '" + accountID + "'"
+
+	err := a.client.QuerySFDCObject(query, queryResponse)
+
+	return int(queryResponse.TotalSize), err
 }

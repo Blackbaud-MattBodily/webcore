@@ -15,6 +15,7 @@ type AccountRepository interface {
 	QueryAccounts(query string) ([]*AccountDTO, error)
 	CreateAccount(account *entities.Account) (id string, siteID int, err error)
 	UpdateAccount(account *entities.Account) error
+	GetContactCount(accountID string) (int, error)
 }
 
 // AccountDTO is an data transfer object for entities.Account
@@ -186,4 +187,11 @@ func (as *AccountService) UpdateAccount(a AccountDTO) error {
 
 	err = as.AccountRepo.UpdateAccount(account)
 	return err
+}
+
+//GetContactCount returns the number of contacts currently associated with a given account.
+func (as *AccountService) GetContactCount(accountID string) (int, error) {
+	count, err := as.AccountRepo.GetContactCount(accountID)
+
+	return count, err
 }

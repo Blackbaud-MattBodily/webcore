@@ -3,8 +3,8 @@ package salesforce
 import (
 	"errors"
 	"fmt"
+	"regexp"
 
-	"github.com/blackbaudIT/webcore/entities"
 	"github.com/blackbaudIT/webcore/services"
 )
 
@@ -17,7 +17,7 @@ type SFDCContact struct {
 type SFDCContactQueryResponse struct {
 	SFDCQueryResponse
 
-	Records []*SFDCContact `json:"Records" force:"records"`
+	Records []*services.ContactDTO `json:"Records" force:"records"`
 }
 
 //ApiName is the SFDC ApiName of the Contact object.
@@ -27,7 +27,7 @@ func (s SFDCContact) ApiName() string {
 
 //ExternalIdApiName is the SFDC external id for the Contact object.
 func (s SFDCContact) ExternalIdApiName() string {
-	return "Username"
+	return "eBus_Contact_ID__c"
 }
 
 //GetContact returns a Salesforce contact given an SFDC ID or a BBAuthID.
@@ -53,9 +53,25 @@ func (a API) GetContact(id string) (*services.ContactDTO, error) {
 	return &contact.ContactDTO, nil
 }
 
-//GetContactsByAuthID returns a slice of contact records given a BBAuthID
-func (a API) GetContactsByAuthID(id string) ([]*services.ContactDTO, error) {
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+//QueryContacts returns a slice of SFDCContacts that represents the results of the SOQL query given.
+func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
+	queryResponse := &SFDCContactQueryResponse{}
+
+	err := a.client.QuerySFDCObject(query, queryResponse)
+
+	return queryResponse.Records, err
+}
+
+//GetByAuthID returns a contact query string that selects contacts with the given
+//BBAuthID.
+func (a API) GetByAuthID(id string) (string, error) {
+	match, err := regexp.MatchString("[A-Za-z0-9]{8}-([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{12}", id)
+
+	if err != nil || !match {
+		return "", fmt.Errorf("BBAuthID incorrectly formatted: %s", err)
+	}
+
+	query := "SELECT Id, Salutation, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
@@ -65,12 +81,19 @@ func (a API) GetContactsByAuthID(id string) ([]*services.ContactDTO, error) {
 		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
 		"WHERE BBAuthID__c = '" + id + "'"
 
-	return a.QueryContacts(query)
+	return query, nil
 }
 
-//GetContactsByEmail returns a slice of contact records given a BBAuth email.
-func (a API) GetContactsByEmail(email string) ([]*services.ContactDTO, error) {
-	query := "SELECT Id, Name, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+//GetByEmail returns a contact query string that selects contacts with the given
+//BBAuth Email.
+func (a API) GetByEmail(email string) (string, error) {
+	match, err := regexp.MatchString(".+@.+", email)
+
+	if err != nil || !match {
+		return "", fmt.Errorf("Email incorrectly formatted: %s", err)
+	}
+
+	query := "SELECT Id, Salutation, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
 		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
@@ -80,60 +103,20 @@ func (a API) GetContactsByEmail(email string) ([]*services.ContactDTO, error) {
 		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
 		"WHERE BBAuth_Email__c = '" + email + "'"
 
-	return a.QueryContacts(query)
-}
-
-//GetContactCount returns the number of salesforce contacts currently associated with an account.
-func (a API) GetContactCount(accountId string) (int, error) {
-	queryResponse := &SFDCContactQueryResponse{}
-	query := "SELECT count() FROM Contact WHERE AccountId = '" + accountId + "'"
-
-	err := a.client.QuerySFDCObject(query, queryResponse)
-
-	return int(queryResponse.TotalSize), err
-}
-
-//QueryContacts returns a slice of SFDCContacts that represents the results of the SOQL query given.
-func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
-	queryResponse := &SFDCContactQueryResponse{}
-
-	err := a.client.QuerySFDCObject(query, queryResponse)
-	contacts := make([]*services.ContactDTO, len(queryResponse.Records))
-
-	//Mapping the returned slice of *SFDCContacts to a slice of *ContactDTOs
-	for index, dto := range queryResponse.Records {
-		contacts[index] = &dto.ContactDTO
-	}
-
-	return contacts, err
-}
-
-//CreateContact creates a new SFDC Contact.
-func (a API) CreateContact(contact *entities.Contact) (string, string, error) {
-	dto := services.ConvertContactEntityToContactDTO(contact)
-
-	sfdcContact := SFDCContact{ContactDTO: *dto}
-	resp, err := a.client.InsertSFDCObject(sfdcContact)
-
-	if err != nil {
-		return "", "", fmt.Errorf("Error creating contact in SFDC: %s", err)
-	}
-
-	if !resp.Success {
-		return "", "", fmt.Errorf("Error creating contact in SFDC: %s", resp.ErrorMessage)
-	}
-
-	newContact := &SFDCContact{}
-	err = a.client.GetSFDCObject(resp.ID, newContact)
-
-	if err != nil {
-		return "", "", fmt.Errorf("Error getting newly created contact: %s", err)
-	}
-
-	return resp.ID, newContact.Name, nil
+	return query, nil
 }
 
 //UpdateContact updates a given contact.
-func (a API) UpdateContact(contact *entities.Contact) error {
-	return nil
+func (a API) UpdateContact(contact *services.ContactDTO) error {
+	//This is a bit weird, but we can't update a record if the ID is part of the
+	//object and updates fail whenever we try and set the Account field on the
+	//contact object. Since we don't have a reason yet to update a contact with
+	//a new account, this isn't majorly impacting. However, in the future we'll
+	//need to figure out a way around this.
+	sfdcContact := SFDCContact{ContactDTO: *contact}
+	id := sfdcContact.SalesForceID
+	sfdcContact.SalesForceID = ""
+	sfdcContact.Account = nil
+
+	return a.client.UpdateSFDCObject(id, sfdcContact)
 }

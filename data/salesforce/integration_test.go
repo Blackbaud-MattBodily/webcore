@@ -185,3 +185,31 @@ func TestQuerySFDCAssets(t *testing.T) {
 		})
 	})
 }
+
+func TestUpdateSFDCObject(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
+	Convey("Given a valid contact", t, func() {
+		id := "003550000078hRpAAI"
+		contact := services.ContactDTO{Title: "Test Title"}
+		obj := SFDCContact{contact}
+		Convey("When updating a contact", func() {
+			err := qasAPI.client.UpdateSFDCObject(id, obj)
+			Convey("Then no error should occur", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given an invalid SObject", t, func() {
+		id := "93275"
+		obj := ""
+		Convey("When updating an account", func() {
+			err := qasAPI.client.UpdateSFDCObject(id, obj)
+			Convey("Then an error is returned", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}

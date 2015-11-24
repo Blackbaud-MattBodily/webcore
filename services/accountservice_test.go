@@ -53,6 +53,10 @@ func (m mockAccountRepository) UpdateAccount(account *entities.Account) error {
 	return nil
 }
 
+func (m mockAccountRepository) GetContactCount(accountID string) (int, error) {
+	return 0, nil
+}
+
 func TestAccountDTOToEntity(t *testing.T) {
 	Convey("Given an Account Data Transfer Object with an empty name", t, func() {
 		accountDTOCopy := accountDTO
@@ -225,6 +229,19 @@ func TestGetAccount(t *testing.T) {
 			account, _ := accountService.GetAccount(id)
 			Convey("Then an Account Data Transfer Object is returned", func() {
 				So(account, ShouldPointTo, &accountDTO)
+			})
+		})
+	})
+}
+
+func TestQueryAccounts(t *testing.T) {
+	Convey("Given a query string", t, func() {
+		query := "select Id, Name from Account where Name = 'Test Org Name'"
+		Convey("When a list of accounts are requested from the AccountService", func() {
+			accounts, err := accountService.QueryAccounts(query)
+			Convey("Then a list of Account Data Transfer Objects is returned", func() {
+				So(accounts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
 			})
 		})
 	})

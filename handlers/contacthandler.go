@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/blackbaudIT/webcore/services"
@@ -78,19 +77,23 @@ func (h *ContactHandler) GetContactsByAuthID(w http.ResponseWriter, r *http.Requ
 	w.Write(data)
 }
 
-//GetContactCount returns the number of contacts currently related to a given account.
-func (h *ContactHandler) GetContactCount(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+//UpdateContact responds to an HTTP request to update a contact record.
+func (h *ContactHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
 	service := &services.ContactService{ContactRepo: h.contactRepo}
-	w.Header().Set("Content-type", "application/json")
-	count, err := service.GetContactCount(vars["accountId"])
+	decoder := json.NewDecoder(r.Body)
+	contact := &services.ContactDTO{}
+
+	err := decoder.Decode(contact)
 
 	if err != nil {
-		log.Printf("ContactHandler.GetContactCount failed to retrieve count: %s", err)
-		w.Write([]byte("{\"count\":0}"))
-		return
+		log.Printf("ContactHandler.UpdateContact Failed to decode contact: %s", err)
 	}
 
-	response := "{\"count\":" + strconv.Itoa(count) + "}"
-	w.Write([]byte(response))
+	err = service.UpdateContact(contact)
+
+	if err != nil {
+		log.Printf("ContactHandler.UpdateContact Failed to update contact: %s", err)
+	}
+
+	w.Write([]byte("{\"status\":true}"))
 }

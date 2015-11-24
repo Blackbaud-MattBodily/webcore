@@ -7,7 +7,8 @@ import "errors"
 
 //Contact is a Blackbaud Contact entity.
 type Contact struct {
-	name            string
+	id              string
+	Name            *Name
 	email           string
 	Phone           string
 	Fax             string
@@ -24,6 +25,35 @@ type Contact struct {
 //CurrencyType is an enum for setting a contact's preferred currency.
 type CurrencyType string
 
+//Name represents the salutation, first name, and last name of a contact.
+type Name struct {
+	Salutation string
+	FirstName  string
+	lastName   string
+}
+
+//BuildName builds a Name type out of a firstname, lastname, and salutation.
+func BuildName(salutation, firstname, lastname string) (*Name, error) {
+	if len(lastname) > 0 {
+		return &Name{Salutation: salutation, FirstName: firstname, lastName: lastname}, nil
+	}
+	return nil, errors.New("A last name is required to build a Name struct.")
+}
+
+//LastName of a Name struct.
+func (n *Name) LastName() string {
+	return n.lastName
+}
+
+//SetLastName sets the lastName of a Name struct.
+func (n *Name) SetLastName(lastName string) error {
+	if len(lastName) == 0 {
+		return errors.New("Lastname can not be empty.")
+	}
+	n.lastName = lastName
+	return nil
+}
+
 //Enumeration for CurrencyType.
 const (
 	USD CurrencyType = "USD - U.S. Dollar"
@@ -35,11 +65,10 @@ const (
 )
 
 //NewContact creates a valid Contact object with required fields.
-func NewContact(name string, account *Account, currency CurrencyType) (*Contact, error) {
-	if name == "" {
-		return nil, errors.New("Contact name cannot be blank")
+func NewContact(name *Name, account *Account, currency CurrencyType) (*Contact, error) {
+	if len(name.LastName()) == 0 {
+		return nil, errors.New("Contact's Name must have a lastName")
 	}
-
 	if account == nil {
 		return nil, errors.New("Contact must have an account")
 	}
@@ -48,12 +77,12 @@ func NewContact(name string, account *Account, currency CurrencyType) (*Contact,
 		return nil, errors.New("Contact must have a currency type")
 	}
 
-	return &Contact{name: name, account: account, Currency: currency}, nil
+	return &Contact{Name: name, account: account, Currency: currency}, nil
 }
 
-//Name of the contact.
-func (c *Contact) Name() string {
-	return c.name
+//ID of the contact.
+func (c *Contact) ID() string {
+	return c.id
 }
 
 //Email of the contact.
@@ -91,13 +120,9 @@ func (c *Contact) BBAuthLastName() string {
 	return c.bbAuthLastName
 }
 
-//SetName sets the contact's name.
-func (c *Contact) SetName(name string) error {
-	if name == "" {
-		return errors.New("Contact must have a non-empty name")
-	}
-
-	c.name = name
+//SetID sets the contact's ID.
+func (c *Contact) SetID(id string) error {
+	c.id = id
 	return nil
 }
 

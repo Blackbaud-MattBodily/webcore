@@ -16,12 +16,29 @@ func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getContactsWithAccountExample()
+	updateContactExample()
+	//getContactsWithAccountExample()
 	//getContactCountExample()
 	//getContactExample()
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func updateContactExample() {
+	contactDTOs, _ := contactService.GetContactsByAuthID("32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF")
+
+	data, _ := json.Marshal(contactDTOs[0])
+
+	fmt.Println(string(data))
+	contactDTOs[0].BBAuthFirstName = "Eriq"
+
+	err := contactService.UpdateContact(contactDTOs[0])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("DONE!")
 }
 
 func getContactsWithAccountExample() {
@@ -37,7 +54,7 @@ func getContactsWithAccountExample() {
 }
 
 func getContactCountExample() {
-	count, err := contactService.GetContactCount("001d000001TweFmAAJ")
+	count, err := service.GetContactCount("001d000001TweFmAAJ")
 
 	if err != nil {
 		fmt.Println(err)
