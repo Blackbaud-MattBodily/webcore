@@ -73,7 +73,7 @@ func (a API) GetByAuthID(id string) (string, error) {
 
 	query := "SELECT Id, Salutation, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"BBAuth_Last_Name__c, Default_Account__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
@@ -95,7 +95,7 @@ func (a API) GetByEmail(email string) (string, error) {
 
 	query := "SELECT Id, Salutation, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
 		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
-		"BBAuth_Last_Name__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"BBAuth_Last_Name__c, Default_Account__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
 		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
