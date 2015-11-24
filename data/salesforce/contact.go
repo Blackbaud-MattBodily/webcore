@@ -106,6 +106,22 @@ func (a API) GetByEmail(email string) (string, error) {
 	return query, nil
 }
 
+//GetByIDs returns a contact query string that selects contacts with the given
+//SFDC IDs.
+func (a API) GetByIDs(ids []string) (string, error) {
+	query := "SELECT Id, Salutation, FirstName, LastName, Email, Phone, Fax, Title, AccountId, AccountName__c," +
+		"SFDC_Contact_Status__c, CurrencyIsoCode, BBAuthID__c, BBAuth_Email__c, BBAuth_First_Name__c," +
+		"BBAuth_Last_Name__c, Default_Account__c, Account.Name, Account.Id, Account.Clarify_Site_ID__c," +
+		"Account.Business_unit__c, Account.Industry, Account.Payer__c," +
+		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
+		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
+		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
+		"WHERE Id in " + parseIDs(ids)
+
+	return query, nil
+}
+
 //UpdateContact updates a given contact.
 func (a API) UpdateContact(contact *services.ContactDTO) error {
 	//This is a bit weird, but we can't update a record if the ID is part of the
@@ -119,4 +135,18 @@ func (a API) UpdateContact(contact *services.ContactDTO) error {
 	sfdcContact.Account = nil
 
 	return a.client.UpdateSFDCObject(id, sfdcContact)
+}
+
+func parseIDs(ids []string) string {
+	idCSV := "("
+
+	for index, id := range ids {
+		if index == 0 {
+			idCSV += fmt.Sprintf("'%s'", id)
+		} else {
+			idCSV += fmt.Sprintf(", '%s'", id)
+		}
+	}
+	idCSV += ")"
+	return idCSV
 }

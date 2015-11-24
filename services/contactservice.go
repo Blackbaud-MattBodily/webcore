@@ -19,6 +19,7 @@ type ContactRepository interface {
 type ContactQueryBuilder interface {
 	GetByAuthID(id string) (string, error)
 	GetByEmail(email string) (string, error)
+	GetByIDs(ids []string) (string, error)
 }
 
 //ContactDTO is a data transfer object for entities.Contact
@@ -143,6 +144,19 @@ func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, err
 	if err != nil {
 		return make([]*ContactDTO, 0), err
 	}
+	contacts, err := cs.ContactRepo.QueryContacts(query)
+
+	return contacts, err
+}
+
+//GetContactsByIDs returns all contact records associated with the given IDs.
+func (cs *ContactService) GetContactsByIDs(ids []string) ([]*ContactDTO, error) {
+	query, err := cs.ContactRepo.GetByIDs(ids)
+
+	if err != nil {
+		return make([]*ContactDTO, 0), err
+	}
+
 	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	return contacts, err

@@ -16,13 +16,26 @@ func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	updateContactExample()
+	getContactsByIDsExample()
+	//updateContactExample()
 	//getContactsWithAccountExample()
 	//getContactCountExample()
 	//getContactExample()
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getContactsByIDsExample() {
+	ids := []string{"00355000006LpSuAAK", "003d0000026MOlUAAW", "00355000006LvFMAA0"}
+
+	contactDTOs, err := contactService.GetContactsByIDs(ids)
+
+	fmt.Println(err)
+
+	data, _ := json.Marshal(contactDTOs)
+
+	fmt.Printf("Contacts: %s", data)
 }
 
 func updateContactExample() {
