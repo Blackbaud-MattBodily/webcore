@@ -133,6 +133,19 @@ func TestGetByEmail(t *testing.T) {
 	})
 }
 
+func TestGetByIDs(t *testing.T) {
+	Convey("Given a list of IDs", t, func() {
+		ids := []string{"1234", "5678"}
+		Convey("When requesting a contact query string", func() {
+			query, err := api.GetByIDs(ids)
+			Convey("Then a query string should be returned", func() {
+				So(query, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
 func TestUpdateContact(t *testing.T) {
 	Convey("Given a valid contactDTO", t, func() {
 		contact := &services.ContactDTO{SalesForceID: "12345", LastName: "Tate", Currency: "USD - U.S. Dollar"}
