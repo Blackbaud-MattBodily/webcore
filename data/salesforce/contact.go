@@ -11,13 +11,21 @@ import (
 //SFDCContact wraps the ContactDTO so that SFDC fields can be mapped onto it.
 type SFDCContact struct {
 	services.ContactDTO
+	ContactRoles SFDCContactRoleQueryResponse `force:"Contact_Roles1__r,omitempty"`
 }
 
 //SFDCContactQueryResponse wraps the base SFDCQueryResponse and attaches a slice of SFDCContact pointers which will be written into.
 type SFDCContactQueryResponse struct {
 	SFDCQueryResponse
 
-	Records []*services.ContactDTO `json:"Records" force:"records"`
+	Records []*SFDCContact `json:"Records" force:"records"`
+}
+
+//SFDCContactRoleQueryResponse wraps the base SFDCQueryResponse and attaches a slice of services.ContactRoleDTO pointers to be written to.
+type SFDCContactRoleQueryResponse struct {
+	SFDCQueryResponse
+
+	Records []*services.ContactRoleDTO `json:"Records" force:"records"`
 }
 
 //ApiName is the SFDC ApiName of the Contact object.
@@ -59,7 +67,12 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 
 	err := a.client.QuerySFDCObject(query, queryResponse)
 
-	return queryResponse.Records, err
+	contacts := make([]*services.ContactDTO, len(queryResponse.Records))
+	for key, contact := range queryResponse.Records {
+		contacts[key] = convertSFDCContactToDTO(contact)
+	}
+
+	return contacts, err
 }
 
 //GetByAuthID returns a contact query string that selects contacts with the given
@@ -78,8 +91,9 @@ func (a API) GetByAuthID(id string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuthID__c = '" + id + "'"
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE BBAuthID__c = '" + id + "'"
 
 	return query, nil
 }
@@ -100,8 +114,9 @@ func (a API) GetByEmail(email string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuth_Email__c = '" + email + "'"
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE BBAuth_Email__c = '" + email + "'"
 
 	return query, nil
 }
@@ -116,8 +131,9 @@ func (a API) GetByIDs(ids []string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE Id in " + parseIDs(ids)
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE Id in " + parseIDs(ids)
 
 	return query, nil
 }
@@ -149,4 +165,11 @@ func parseIDs(ids []string) string {
 	}
 	idCSV += ")"
 	return idCSV
+}
+
+func convertSFDCContactToDTO(contact *SFDCContact) *services.ContactDTO {
+	contactDTO := &contact.ContactDTO
+	contactDTO.ContactRoles = contact.ContactRoles.Records
+
+	return contactDTO
 }
