@@ -19,6 +19,7 @@ type ContactRepository interface {
 type ContactQueryBuilder interface {
 	GetByAuthID(id string) (string, error)
 	GetByEmail(email string) (string, error)
+	GetByIDs(ids []string) (string, error)
 }
 
 //ContactDTO is a data transfer object for entities.Contact
@@ -33,6 +34,7 @@ type ContactDTO struct {
 	Fax             string      `json:"fax,omitempty" force:"Fax,omitempty"`
 	Title           string      `json:"title,omitempty" force:"Title,omitempty"`
 	Account         *AccountDTO `json:"account,omitempty" force:"Account,omitempty"`
+	DefaultAccount  string      `json:"defaultAccount,omitempty" force:"Default_Account__c,omitempty"`
 	Status          string      `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
 	Currency        string      `json:"currency,omitempty" force:"CurrencyIsoCode"`
 	BBAuthID        string      `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
@@ -70,6 +72,7 @@ func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 	contact.Fax = c.Fax
 	contact.Title = c.Title
 	contact.SetID(c.SalesForceID)
+	contact.SetDefaultAccount(c.DefaultAccount)
 	contact.SetEmail(c.Email)
 	contact.SetStatus(c.Status)
 	contact.SetBBAuthID(c.BBAuthID)
@@ -93,6 +96,7 @@ func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 		Fax:             contact.Fax,
 		Title:           contact.Title,
 		Account:         ConvertAccountEntityToAccountDTO(contact.Account()),
+		DefaultAccount:  contact.DefaultAccount(),
 		Status:          contact.Status(),
 		BBAuthID:        contact.BBAuthID(),
 		BBAuthEmail:     contact.BBAuthEmail(),
@@ -140,6 +144,19 @@ func (cs *ContactService) GetContactsByAuthID(authID string) ([]*ContactDTO, err
 	if err != nil {
 		return make([]*ContactDTO, 0), err
 	}
+	contacts, err := cs.ContactRepo.QueryContacts(query)
+
+	return contacts, err
+}
+
+//GetContactsByIDs returns all contact records associated with the given IDs.
+func (cs *ContactService) GetContactsByIDs(ids []string) ([]*ContactDTO, error) {
+	query, err := cs.ContactRepo.GetByIDs(ids)
+
+	if err != nil {
+		return make([]*ContactDTO, 0), err
+	}
+
 	contacts, err := cs.ContactRepo.QueryContacts(query)
 
 	return contacts, err

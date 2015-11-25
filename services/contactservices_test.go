@@ -68,6 +68,14 @@ func (m mockContactRepository) GetByEmail(email string) (string, error) {
 	return "", errors.New("Must provide a valid email address")
 }
 
+func (m mockContactRepository) GetByIDs(ids []string) (string, error) {
+	if len(ids) > 0 {
+		return "success!", nil
+	}
+
+	return "", errors.New("Must provide a slice of IDs")
+}
+
 func TestContactDTOToEntity(t *testing.T) {
 	Convey("Given a Contact Data Transfer object with an empty last name", t, func() {
 		contactDTOCopy := contactDTO
@@ -209,6 +217,30 @@ func TestGetContactsByAuthID(t *testing.T) {
 	})
 }
 
+func TestGetContactsByIDs(t *testing.T) {
+	Convey("Given a list of IDs", t, func() {
+		ids := []string{"1234", "5678"}
+		Convey("when a list of contacts are queried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByIDs(ids)
+			Convey("A list of contacts should be returned", func() {
+				So(contacts, ShouldNotBeEmpty)
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+	Convey("Given a blank list of IDs", t, func() {
+		ids := []string{}
+		Convey("When a list of contacts are qeried", func() {
+			cs := NewContactService(mockContactRepository{})
+			contacts, err := cs.GetContactsByIDs(ids)
+			Convey("An error should occur and no contacts should be returned", func() {
+				So(contacts, ShouldBeEmpty)
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
 func TestQueryContactsByAuthID(t *testing.T) {
 	Convey("Given a contact query string", t, func() {
 		query := "success!"

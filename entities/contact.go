@@ -14,6 +14,7 @@ type Contact struct {
 	Fax             string
 	Title           string
 	account         *Account
+	defaultAccount  string
 	status          string
 	Currency        CurrencyType
 	bbAuthID        string
@@ -95,6 +96,11 @@ func (c *Contact) Account() *Account {
 	return c.account
 }
 
+//DefaultAccount of the contact.
+func (c *Contact) DefaultAccount() string {
+	return c.defaultAccount
+}
+
 //Status of the cotnact.
 func (c *Contact) Status() string {
 	return c.status
@@ -135,6 +141,12 @@ func (c *Contact) SetEmail(email string) error {
 //SetAccount sets the contact's account.
 func (c *Contact) SetAccount(account *Account) error {
 	c.account = account
+	return nil
+}
+
+//SetDefaultAccount sets the contact's default account.
+func (c *Contact) SetDefaultAccount(id string) error {
+	c.defaultAccount = id
 	return nil
 }
 

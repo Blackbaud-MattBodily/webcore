@@ -14,6 +14,7 @@ var contactEntity = &Contact{
 	Fax:             "(843)654-2566",
 	Title:           "Application Developer II",
 	account:         &Account{name: "Test Account"},
+	defaultAccount:  "123",
 	status:          "Active",
 	Currency:        "USD - U.S. Dollar",
 	bbAuthID:        "123456-1234-1234-1234-12345678",
@@ -93,6 +94,12 @@ func TestContactGettersAndSetters(t *testing.T) {
 				So(account, ShouldNotBeNil)
 			})
 		})
+		Convey("When requesting their default account", func() {
+			defaultAccount := contact.DefaultAccount()
+			Convey("Then a default account ID should be returned.", func() {
+				So(defaultAccount, ShouldNotBeEmpty)
+			})
+		})
 		Convey("When requesting their status", func() {
 			status := contact.Status()
 			Convey("Then a status should be returned.", func() {
@@ -142,6 +149,13 @@ func TestContactGettersAndSetters(t *testing.T) {
 			contact.SetAccount(account)
 			Convey("Then the contact's account should be changed", func() {
 				So(contact.Account(), ShouldEqual, account)
+			})
+		})
+		Convey("When attempting to set their default account", func() {
+			defaultAccount := "123456"
+			contact.SetDefaultAccount(defaultAccount)
+			Convey("Then the contact's default account should be changed", func() {
+				So(contact.DefaultAccount(), ShouldEqual, defaultAccount)
 			})
 		})
 		Convey("When attempting to set their status", func() {
