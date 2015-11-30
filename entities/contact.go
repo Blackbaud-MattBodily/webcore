@@ -15,6 +15,7 @@ type Contact struct {
 	Title           string
 	account         *Account
 	defaultAccount  string
+	roles           []ContactRole
 	status          string
 	Currency        CurrencyType
 	bbAuthID        string
@@ -23,8 +24,12 @@ type Contact struct {
 	bbAuthLastName  string
 }
 
-//CurrencyType is an enum for setting a contact's preferred currency.
-type CurrencyType string
+//ContactRole is a role for a Blackbaud Contact entity.
+type ContactRole struct {
+	RoleName   string
+	RoleType   string
+	RoleStatus string
+}
 
 //Name represents the salutation, first name, and last name of a contact.
 type Name struct {
@@ -54,6 +59,9 @@ func (n *Name) SetLastName(lastName string) error {
 	n.lastName = lastName
 	return nil
 }
+
+//CurrencyType is an enum for setting a contact's preferred currency.
+type CurrencyType string
 
 //Enumeration for CurrencyType.
 const (

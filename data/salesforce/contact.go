@@ -11,21 +11,13 @@ import (
 //SFDCContact wraps the ContactDTO so that SFDC fields can be mapped onto it.
 type SFDCContact struct {
 	services.ContactDTO
-	ContactRoles SFDCContactRoleQueryResponse `force:"Contact_Roles1__r,omitempty"`
 }
 
 //SFDCContactQueryResponse wraps the base SFDCQueryResponse and attaches a slice of SFDCContact pointers which will be written into.
 type SFDCContactQueryResponse struct {
 	SFDCQueryResponse
 
-	Records []*SFDCContact `json:"Records" force:"records"`
-}
-
-//SFDCContactRoleQueryResponse wraps the base SFDCQueryResponse and attaches a slice of services.ContactRoleDTO pointers to be written to.
-type SFDCContactRoleQueryResponse struct {
-	SFDCQueryResponse
-
-	Records []*services.ContactRoleDTO `json:"Records" force:"records"`
+	Records []*services.ContactDTO `json:"Records" force:"records"`
 }
 
 //ApiName is the SFDC ApiName of the Contact object.
@@ -67,12 +59,7 @@ func (a API) QueryContacts(query string) ([]*services.ContactDTO, error) {
 
 	err := a.client.QuerySFDCObject(query, queryResponse)
 
-	contacts := make([]*services.ContactDTO, len(queryResponse.Records))
-	for key, contact := range queryResponse.Records {
-		contacts[key] = convertSFDCContactToDTO(contact)
-	}
-
-	return contacts, err
+	return queryResponse.Records, err
 }
 
 //GetByAuthID returns a contact query string that selects contacts with the given
@@ -149,6 +136,7 @@ func (a API) UpdateContact(contact *services.ContactDTO) error {
 	id := sfdcContact.SalesForceID
 	sfdcContact.SalesForceID = ""
 	sfdcContact.Account = nil
+	sfdcContact.ContactRoles = nil
 
 	return a.client.UpdateSFDCObject(id, sfdcContact)
 }
@@ -167,9 +155,9 @@ func parseIDs(ids []string) string {
 	return idCSV
 }
 
-func convertSFDCContactToDTO(contact *SFDCContact) *services.ContactDTO {
+/*func convertSFDCContactToDTO(contact *SFDCContact) *services.ContactDTO {
 	contactDTO := &contact.ContactDTO
 	contactDTO.ContactRoles = contact.ContactRoles.Records
 
 	return contactDTO
-}
+}*/
