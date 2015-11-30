@@ -57,6 +57,17 @@ type ContactRoleDTO struct {
 	RoleStatus string `json:"roleStatus,omitempty" force:"Role_Status__c,omitempty"`
 }
 
+//ToEntity converts a ContactRoleDTO into a ContactRole entity.
+func (c *ContactRoleDTO) ToEntity() (*entities.ContactRole, error) {
+	role := &entities.ContactRole{
+		RoleType:   c.RoleType,
+		RoleName:   c.RoleName,
+		RoleStatus: c.RoleStatus,
+	}
+
+	return role, nil
+}
+
 //ToEntity converts a ContactDTO into a Contact entity.
 func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 	if c.Account == nil {
@@ -94,7 +105,29 @@ func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 	contact.SetBBAuthFirstName(c.BBAuthFirstName)
 	contact.SetBBAuthLastName(c.BBAuthLastName)
 
+	//Make sure that a ContactRoleWrapper exists on the DTO.
+	if c.ContactRoles != nil {
+		roles := make([]*entities.ContactRole, len(c.ContactRoles.Roles))
+
+		for index, role := range c.ContactRoles.Roles {
+			r, _ := role.ToEntity()
+			roles[index] = r
+		}
+		contact.SetRoles(roles)
+	}
+
 	return contact, err
+}
+
+//ContactRoleToContactRoleDTO converts a ContactRole entitiy into a ContactRoleDTO.
+func ContactRoleToContactRoleDTO(contact *entities.ContactRole) *ContactRoleDTO {
+	dto := &ContactRoleDTO{
+		RoleName:   contact.RoleName,
+		RoleType:   contact.RoleType,
+		RoleStatus: contact.RoleStatus,
+	}
+
+	return dto
 }
 
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
@@ -117,6 +150,14 @@ func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 		BBAuthFirstName: contact.BBAuthFirstName(),
 		BBAuthLastName:  contact.BBAuthLastName(),
 	}
+
+	roles := make([]*ContactRoleDTO, len(contact.Roles()))
+
+	for index, role := range contact.Roles() {
+		roles[index] = ContactRoleToContactRoleDTO(role)
+	}
+
+	dto.ContactRoles = &ContactRolesWrapper{Roles: roles}
 	return dto
 }
 

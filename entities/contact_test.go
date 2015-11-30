@@ -14,6 +14,7 @@ var contactEntity = &Contact{
 	Fax:             "(843)654-2566",
 	Title:           "Application Developer II",
 	account:         &Account{name: "Test Account"},
+	roles:           []*ContactRole{&ContactRole{}},
 	defaultAccount:  "123",
 	status:          "Active",
 	Currency:        "USD - U.S. Dollar",
@@ -106,6 +107,12 @@ func TestContactGettersAndSetters(t *testing.T) {
 				So(status, ShouldNotBeEmpty)
 			})
 		})
+		Convey("When requesting their roles", func() {
+			roles := contact.Roles()
+			Convey("Then a slice of roles should be returned.", func() {
+				So(roles, ShouldNotBeEmpty)
+			})
+		})
 		Convey("When requesting their bbAuthID", func() {
 			authID := contact.BBAuthID()
 			Convey("Then a BBAuthID should be returned", func() {
@@ -163,6 +170,13 @@ func TestContactGettersAndSetters(t *testing.T) {
 			contact.SetStatus(status)
 			Convey("Then the contact's status should be changed", func() {
 				So(contact.Status(), ShouldEqual, status)
+			})
+		})
+		Convey("When attempting to set their roles", func() {
+			roles := []*ContactRole{&ContactRole{RoleName: "Test"}}
+			contact.SetRoles(roles)
+			Convey("Then the contact's roles should be changed", func() {
+				So(contact.Roles()[0], ShouldEqual, roles[0])
 			})
 		})
 		Convey("When attempting to set their BBAuthID", func() {

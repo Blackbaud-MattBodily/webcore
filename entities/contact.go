@@ -15,7 +15,7 @@ type Contact struct {
 	Title           string
 	account         *Account
 	defaultAccount  string
-	roles           []ContactRole
+	roles           []*ContactRole
 	status          string
 	Currency        CurrencyType
 	bbAuthID        string
@@ -114,6 +114,11 @@ func (c *Contact) Status() string {
 	return c.status
 }
 
+//Roles of the contact.
+func (c *Contact) Roles() []*ContactRole {
+	return c.roles
+}
+
 //BBAuthID of the contact.
 func (c *Contact) BBAuthID() string {
 	return c.bbAuthID
@@ -161,6 +166,12 @@ func (c *Contact) SetDefaultAccount(id string) error {
 //SetStatus sets the contact's status.
 func (c *Contact) SetStatus(status string) error {
 	c.status = status
+	return nil
+}
+
+//SetRoles sets the contact's roles.
+func (c *Contact) SetRoles(roles []*ContactRole) error {
+	c.roles = roles
 	return nil
 }
 
