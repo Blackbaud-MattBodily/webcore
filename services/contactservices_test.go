@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/smartystreets/goconvey/convey"
+	"github.com/blackbaudIT/webcore/entities"
 )
 
 var contactDTO = ContactDTO{
@@ -17,6 +18,7 @@ var contactDTO = ContactDTO{
 	Fax:             "(843)654-2566",
 	Title:           "Application Developer II",
 	Account:         &accountDTO,
+	ContactRoles:    &ContactRolesWrapper{Roles: []*ContactRoleDTO{&ContactRoleDTO{}}},
 	Status:          "Active",
 	Currency:        "USD - U.S. Dollar",
 	BBAuthID:        "32FBC72D-C0FE-4B50-B0F4-EDCEFD7B4DEF",
@@ -131,6 +133,17 @@ func TestConvertContactEntityToContactDTO(t *testing.T) {
 	})
 }
 
+func TestContactRoleToContactRoleDTO(t *testing.T) {
+	Convey("Given a valid ContactRole", t, func() {
+		contactRole := &entities.ContactRole{RoleName: "Test"}
+		Convey("When attempting to convert to a ContactRoleDTO", func() {
+			contactRoleDTO := ContactRoleToContactRoleDTO(contactRole)
+			Convey("Then a ContactDTO should be returned", func() {
+				So(contactRoleDTO, ShouldNotBeNil)
+			})
+		})
+	})
+}
 func TestNewContactService(t *testing.T) {
 	Convey("Given a valid ContactRepo", t, func() {
 		contactRepo := mockContactRepository{}

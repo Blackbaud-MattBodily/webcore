@@ -78,8 +78,9 @@ func (a API) GetByAuthID(id string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuthID__c = '" + id + "'"
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE BBAuthID__c = '" + id + "'"
 
 	return query, nil
 }
@@ -100,8 +101,9 @@ func (a API) GetByEmail(email string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE BBAuth_Email__c = '" + email + "'"
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE BBAuth_Email__c = '" + email + "'"
 
 	return query, nil
 }
@@ -116,8 +118,9 @@ func (a API) GetByIDs(ids []string) (string, error) {
 		"Account.Billing_street__c, Account.Billing_City__c, Account.Billing_State_Province__c," +
 		"Account.Billing_Zip_Postal_Code__c, Account.Billing_Country__c," +
 		"Account.Physical_Street__c, Account.Physical_City__c, Account.Physical_State_Province__c," +
-		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c FROM Contact " +
-		"WHERE Id in " + parseIDs(ids)
+		"Account.Physical_Zip_Postal_Code__c, Account.Physical_Country__c, " +
+		"(SELECT Role_Type__c, Role_Name__c, Role_Status__c FROM Contact_Roles1__r) " +
+		"FROM Contact WHERE Id in " + parseIDs(ids)
 
 	return query, nil
 }
@@ -133,6 +136,7 @@ func (a API) UpdateContact(contact *services.ContactDTO) error {
 	id := sfdcContact.SalesForceID
 	sfdcContact.SalesForceID = ""
 	sfdcContact.Account = nil
+	sfdcContact.ContactRoles = nil
 
 	return a.client.UpdateSFDCObject(id, sfdcContact)
 }
@@ -150,3 +154,10 @@ func parseIDs(ids []string) string {
 	idCSV += ")"
 	return idCSV
 }
+
+/*func convertSFDCContactToDTO(contact *SFDCContact) *services.ContactDTO {
+	contactDTO := &contact.ContactDTO
+	contactDTO.ContactRoles = contact.ContactRoles.Records
+
+	return contactDTO
+}*/

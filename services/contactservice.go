@@ -25,22 +25,47 @@ type ContactQueryBuilder interface {
 //ContactDTO is a data transfer object for entities.Contact
 type ContactDTO struct {
 	//AccountName       string `json:"accountName,omitempty" force:"AccountName__c,omitempty"`
-	Salutation      string      `json:"salutation,omitempty" force:"Salutation,omitempty"`
-	FirstName       string      `json:"firstName,omitempty" force:"FirstName,omitempty"`
-	LastName        string      `json:"lastName,omitempty" force:"LastName,omitempty"`
-	SalesForceID    string      `json:"salesForceID,omitempty" force:"Id,omitempty"`
-	Email           string      `json:"email,omitempty" force:"Email,omitempty"`
-	Phone           string      `json:"phone,omitempty" force:"Phone,omitempty"`
-	Fax             string      `json:"fax,omitempty" force:"Fax,omitempty"`
-	Title           string      `json:"title,omitempty" force:"Title,omitempty"`
-	Account         *AccountDTO `json:"account,omitempty" force:"Account,omitempty"`
-	DefaultAccount  string      `json:"defaultAccount,omitempty" force:"Default_Account__c,omitempty"`
-	Status          string      `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
-	Currency        string      `json:"currency,omitempty" force:"CurrencyIsoCode"`
-	BBAuthID        string      `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
-	BBAuthEmail     string      `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
-	BBAuthFirstName string      `json:"bbAuthFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
-	BBAuthLastName  string      `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
+	Salutation      string               `json:"salutation,omitempty" force:"Salutation,omitempty"`
+	FirstName       string               `json:"firstName,omitempty" force:"FirstName,omitempty"`
+	LastName        string               `json:"lastName,omitempty" force:"LastName,omitempty"`
+	SalesForceID    string               `json:"salesForceID,omitempty" force:"Id,omitempty"`
+	Email           string               `json:"email,omitempty" force:"Email,omitempty"`
+	Phone           string               `json:"phone,omitempty" force:"Phone,omitempty"`
+	Fax             string               `json:"fax,omitempty" force:"Fax,omitempty"`
+	Title           string               `json:"title,omitempty" force:"Title,omitempty"`
+	Account         *AccountDTO          `json:"account,omitempty" force:"Account,omitempty"`
+	ContactRoles    *ContactRolesWrapper `json:"contactRoles,omitempty" force:"Contact_Roles1__r,omitempty"`
+	DefaultAccount  string               `json:"defaultAccount,omitempty" force:"Default_Account__c,omitempty"`
+	Status          string               `json:"status,omitempty" force:"SFDC_Contact_Status__c,omitempty"`
+	Currency        string               `json:"currency,omitempty" force:"CurrencyIsoCode"`
+	BBAuthID        string               `json:"bbAuthId,omitempty" force:"BBAuthID__c,omitempty"`
+	BBAuthEmail     string               `json:"bbAuthEmail,omitempty" force:"BBAuth_Email__c,omitempty"`
+	BBAuthFirstName string               `json:"bbAuthFirstName,omitempty" force:"BBAuth_First_Name__c,omitempty"`
+	BBAuthLastName  string               `json:"bbAuthLastName,omitempty" force:"BBAuth_Last_Name__c,omitempty"`
+}
+
+//ContactRolesWrapper wraps a slice of ContactRoleDTO pointers so that the SFDC
+//unmarshaling process can build valid structures.
+type ContactRolesWrapper struct {
+	Roles []*ContactRoleDTO `json:"roles,omitempty" force:"records,omitempty"`
+}
+
+//ContactRoleDTO is a data transfer object for Contact Roles.
+type ContactRoleDTO struct {
+	RoleType   string `json:"roleType,omitempty" force:"Role_Type__c,omitempty"`
+	RoleName   string `json:"roleName,omitempty" force:"Role_Name__c,omitempty"`
+	RoleStatus string `json:"roleStatus,omitempty" force:"Role_Status__c,omitempty"`
+}
+
+//ToEntity converts a ContactRoleDTO into a ContactRole entity.
+func (c *ContactRoleDTO) ToEntity() (*entities.ContactRole, error) {
+	role := &entities.ContactRole{
+		RoleType:   c.RoleType,
+		RoleName:   c.RoleName,
+		RoleStatus: c.RoleStatus,
+	}
+
+	return role, nil
 }
 
 //ToEntity converts a ContactDTO into a Contact entity.
@@ -80,7 +105,29 @@ func (c *ContactDTO) ToEntity() (*entities.Contact, error) {
 	contact.SetBBAuthFirstName(c.BBAuthFirstName)
 	contact.SetBBAuthLastName(c.BBAuthLastName)
 
+	//Make sure that a ContactRoleWrapper exists on the DTO.
+	if c.ContactRoles != nil {
+		roles := make([]*entities.ContactRole, len(c.ContactRoles.Roles))
+
+		for index, role := range c.ContactRoles.Roles {
+			r, _ := role.ToEntity()
+			roles[index] = r
+		}
+		contact.SetRoles(roles)
+	}
+
 	return contact, err
+}
+
+//ContactRoleToContactRoleDTO converts a ContactRole entitiy into a ContactRoleDTO.
+func ContactRoleToContactRoleDTO(contact *entities.ContactRole) *ContactRoleDTO {
+	dto := &ContactRoleDTO{
+		RoleName:   contact.RoleName,
+		RoleType:   contact.RoleType,
+		RoleStatus: contact.RoleStatus,
+	}
+
+	return dto
 }
 
 //ConvertContactEntityToContactDTO converts an entity.Contact into a ContactDTO.
@@ -103,6 +150,14 @@ func ConvertContactEntityToContactDTO(contact *entities.Contact) *ContactDTO {
 		BBAuthFirstName: contact.BBAuthFirstName(),
 		BBAuthLastName:  contact.BBAuthLastName(),
 	}
+
+	roles := make([]*ContactRoleDTO, len(contact.Roles()))
+
+	for index, role := range contact.Roles() {
+		roles[index] = ContactRoleToContactRoleDTO(role)
+	}
+
+	dto.ContactRoles = &ContactRolesWrapper{Roles: roles}
 	return dto
 }
 

@@ -27,11 +27,9 @@ func main() {
 }
 
 func getContactsByIDsExample() {
-	ids := []string{"00355000006LpSuAAK", "003d0000026MOlUAAW", "00355000006LvFMAA0"}
+	ids := []string{"003d0000026MOlUAAW"} //, "00355000006LpSuAAK", "00355000006LvFMAA0"}
 
-	contactDTOs, err := contactService.GetContactsByIDs(ids)
-
-	fmt.Println(err)
+	contactDTOs, _ := contactService.GetContactsByIDs(ids)
 
 	data, _ := json.Marshal(contactDTOs)
 
