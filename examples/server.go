@@ -5,18 +5,21 @@ import (
 	"fmt"
 
 	"github.com/blackbaudIT/webcore/data/salesforce"
+	"github.com/blackbaudIT/webcore/data/servicebus"
 	"github.com/blackbaudIT/webcore/services"
 )
 
 var api = salesforce.NewAPI()
 var service = services.AccountService{AccountRepo: api}
 var contactService = services.ContactService{ContactRepo: api}
+var caseService = services.CaseService{CaseRepo: servicebus.NewAPI()}
 
 func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getContactsByIDsExample()
+	getCasesBySiteIDExample()
+	//getContactsByIDsExample()
 	//updateContactExample()
 	//getContactsWithAccountExample()
 	//getContactCountExample()
@@ -24,6 +27,20 @@ func main() {
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getCasesBySiteIDExample() {
+	siteID := 5740
+
+	cases, err := caseService.GetCasesBySiteID(siteID)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	data, err := json.Marshal(cases)
+
+	fmt.Println(string(data))
 }
 
 func getContactsByIDsExample() {
