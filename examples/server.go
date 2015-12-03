@@ -39,7 +39,7 @@ func getCasesBySiteIDExample() {
 	}
 
 	data, err := json.Marshal(cases)
-
+	fmt.Println("About to print data")
 	fmt.Println(string(data))
 }
 

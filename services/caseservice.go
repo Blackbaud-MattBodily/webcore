@@ -1,14 +1,15 @@
 package services
 
-import "time"
+import "encoding/xml"
 
 //CaseDTO is a data transfer object for moving account case data around.
 type CaseDTO struct {
-	ID        string    `json:"id,omitempty" xml:"Id,omitempty"`
-	Title     string    `json:"title,omitempty" xml:"Title,omitempty"`
-	Status    string    `json:"status,omitempty" xml:"Status,omitempty"`
-	DateAdded time.Time `json:"dateAdded,omitempty" xml:"DateAdded,omitempty"`
-	WebNotes  string    `json:"notes,omitempty" xml:"WebNotes,omitempty"`
+	XMLName   xml.Name `xml:"Case"`
+	ID        string   `json:"id,omitempty" xml:"Id,attr"`
+	Title     string   `json:"title,omitempty" xml:"Title,omitempty"`
+	Status    string   `json:"status,omitempty" xml:"Status,omitempty"`
+	DateAdded string   `json:"dateAdded,omitempty" xml:"DateAdded,omitempty"`
+	WebNotes  string   `json:"notes,omitempty" xml:"WebNotes,omitempty"`
 }
 
 type CaseService struct {
