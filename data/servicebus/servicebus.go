@@ -1,8 +1,8 @@
 package servicebus
 
 import (
-	"github.com/ma314smith/goazure"
-	"github.com/spf13/viper"
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/ma314smith/goazure"
+	"github.com/blackbaudIT/webcore/Godeps/_workspace/src/github.com/spf13/viper"
 )
 
 //API wraps a ServiceBusRelay and provides methods for retrieving information from the servicebus.

@@ -32,6 +32,10 @@
 			"Rev": "e373e137fafd8abd480af49182dea0513914adb4"
 		},
 		{
+			"ImportPath": "github.com/ma314smith/goazure",
+			"Rev": "6a8d9421f00bcd906b34b783828627e59bc25ab5"
+		},
+		{
 			"ImportPath": "github.com/magiconair/properties",
 			"Comment": "v1.5.5",
 			"Rev": "337395e44efb4affc8bf11971e22acbd4e27a32d"
@@ -47,6 +51,10 @@
 		{
 			"ImportPath": "github.com/nimajalali/go-force/forcejson",
 			"Rev": "4ad21a76e5420f86231d7697e178e8e03ff20c43"
+		},
+		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Rev": "d41af8bb6a7704f00bc3b7cba9355ae6a5a80048"
 		},
 		{
 			"ImportPath": "github.com/smartystreets/assertions",
