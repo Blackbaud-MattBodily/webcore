@@ -23,14 +23,12 @@ func (a API) GetFTPCredentials(email string) (*services.FTPCredentialsDTO, error
 	data, err := a.Relay.CallEndpoint(ftpEndpoint, action, body)
 
 	if err != nil {
-		return response.Body.Response.Result.FTPInfo.FTPCreds, err
+		return response.Body.Response.Result.FTPCreds, err
 	}
-
-	fmt.Println(string(data))
 
 	err = xml.Unmarshal(data, response)
 
-	return response.Body.Response.Result.FTPInfo.FTPCreds, err
+	return response.Body.Response.Result.FTPCreds, err
 }
 
 //The following structs are only for proper unmarshaling of the Soap response that comes back
@@ -51,11 +49,6 @@ type getFTPUserNameResponse struct {
 }
 
 type ftpResult struct {
-	XMLName xml.Name `xml:"GetFTPUserNameResult"`
-	FTPInfo ftpInfo
-}
-
-type ftpInfo struct {
-	XMLName  xml.Name `xml:"FTPINFO"`
+	XMLName  xml.Name `xml:"GetFTPUserNameResult"`
 	FTPCreds *services.FTPCredentialsDTO
 }

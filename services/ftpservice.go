@@ -1,10 +1,13 @@
 package services
 
+import "encoding/xml"
+
 //FTPCredentialsDTO is a data transfer object for retrieving a user's FTP
 //Credentials.
 type FTPCredentialsDTO struct {
-	UserName string `json:"ftpUserName" xml:"FTPUSERNAME"`
-	Password string `json:"ftpPassword" xml:"FTPPASSWORD"`
+	XMLName  xml.Name `xml:"FTPINFO"`
+	UserName string   `json:"ftpUserName" xml:"FTPUSERNAME"`
+	Password string   `json:"ftpPassword" xml:"FTPPASSWORD"`
 }
 
 //FTPService is a struct that contains an FTPRepository as well as functions
