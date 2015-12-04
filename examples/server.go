@@ -10,15 +10,19 @@ import (
 )
 
 var api = salesforce.NewAPI()
+var serviceBus = servicebus.NewAPI()
+
 var service = services.AccountService{AccountRepo: api}
 var contactService = services.ContactService{ContactRepo: api}
-var caseService = services.CaseService{CaseRepo: servicebus.NewAPI()}
+var caseService = services.NewCaseService(serviceBus)
+var ftpService = services.NewFTPService(serviceBus)
 
 func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getCasesBySiteIDExample()
+	//getCasesBySiteIDExample()
+	getFTPByEmailExample()
 	//getContactsByIDsExample()
 	//updateContactExample()
 	//getContactsWithAccountExample()
@@ -29,10 +33,23 @@ func main() {
 	//updateAccountExample()
 }
 
+func getFTPByEmailExample() {
+	email := "erik.tate@blackbaud.com"
+
+	creds, err := ftpService.GetFTPCredentials(email)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	data, err := json.Marshal(creds)
+	fmt.Println(string(data))
+}
+
 func getCasesBySiteIDExample() {
 	siteID := 5740
 
-	cases, err := caseService.GetCasesBySiteID(siteID)
+	cases, err := caseService.GetCasesBySiteID(siteID, 30)
 
 	if err != nil {
 		fmt.Println(err)

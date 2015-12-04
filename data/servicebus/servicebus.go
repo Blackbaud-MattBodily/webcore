@@ -18,9 +18,11 @@ func NewAPI() API {
 
 	issuerName := env.GetString("ACSISSUERNAME")
 	issuerKey := env.GetString("ACSISSUERKEY")
+	namespace := env.GetString("NAMESPACE")
+	scope := env.GetString("SCOPE")
 
 	acs := goazure.ACS{IssuerName: issuerName, IssuerKey: issuerKey}
-	//TODO: Update the namespace and scope to either be pulled from the environment or added as arguments to the NewAPI function.
-	sbr := goazure.ServiceBusRelay{Namespace: "blackbaud", Scope: "servicerouter-qas", AccessControl: &acs}
+	sbr := goazure.ServiceBusRelay{Namespace: namespace, Scope: scope, AccessControl: &acs}
+
 	return API{Relay: sbr}
 }

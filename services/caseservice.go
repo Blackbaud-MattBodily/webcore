@@ -12,20 +12,29 @@ type CaseDTO struct {
 	WebNotes  string   `json:"notes,omitempty" xml:"WebNotes,omitempty"`
 }
 
+//CaseService is a struct that stores the CaseRepository that should be
+//communicated with as well as functions for manipulating Case data on that
+//repository.
 type CaseService struct {
 	CaseRepo CaseRepository
 }
 
+//CaseRepository is an interface that defines the functions required for an
+//object to be considered a CaseRepository.
 type CaseRepository interface {
-	GetCasesBySiteID(siteID int) ([]*CaseDTO, error)
+	GetCasesBySiteID(siteID, lookback int) ([]*CaseDTO, error)
 }
 
+//NewCaseService returns a pointer to a CaseService instantiated with a given
+//CaseRepository.
 func NewCaseService(repo CaseRepository) *CaseService {
 	return &CaseService{CaseRepo: repo}
 }
 
-func (c *CaseService) GetCasesBySiteID(siteID int) ([]*CaseDTO, error) {
-	cases, err := c.CaseRepo.GetCasesBySiteID(siteID)
+//GetCasesBySiteID tries to retrieve a slice of CaseDTOs given the siteID of
+//an account (likely the Clarify Site ID).
+func (c *CaseService) GetCasesBySiteID(siteID, lookback int) ([]*CaseDTO, error) {
+	cases, err := c.CaseRepo.GetCasesBySiteID(siteID, lookback)
 
 	return cases, err
 }
