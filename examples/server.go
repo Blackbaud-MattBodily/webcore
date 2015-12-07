@@ -5,18 +5,25 @@ import (
 	"fmt"
 
 	"github.com/blackbaudIT/webcore/data/salesforce"
+	"github.com/blackbaudIT/webcore/data/servicebus"
 	"github.com/blackbaudIT/webcore/services"
 )
 
 var api = salesforce.NewAPI()
+var serviceBus = servicebus.NewAPI()
+
 var service = services.AccountService{AccountRepo: api}
 var contactService = services.ContactService{ContactRepo: api}
+var caseService = services.NewCaseService(serviceBus)
+var ftpService = services.NewFTPService(serviceBus)
 
 func main() {
 	fmt.Println("starting...")
 	fmt.Println("")
 
-	getContactsByIDsExample()
+	//getCasesBySiteIDExample()
+	getFTPByEmailExample()
+	//getContactsByIDsExample()
 	//updateContactExample()
 	//getContactsWithAccountExample()
 	//getContactCountExample()
@@ -24,6 +31,33 @@ func main() {
 	//getAccountExample()
 	//insertAccountExample()
 	//updateAccountExample()
+}
+
+func getFTPByEmailExample() {
+	email := "erik.tate@blackbaud.com"
+
+	creds, err := ftpService.GetFTPCredentials(email)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	data, err := json.Marshal(creds)
+	fmt.Println(string(data))
+}
+
+func getCasesBySiteIDExample() {
+	siteID := 5740
+
+	cases, err := caseService.GetCasesBySiteID(siteID, 30)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	data, err := json.Marshal(cases)
+	fmt.Println("About to print data")
+	fmt.Println(string(data))
 }
 
 func getContactsByIDsExample() {
