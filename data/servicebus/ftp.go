@@ -18,8 +18,6 @@ func (a API) GetFTPCredentials(email string) (*services.FTPCredentialsDTO, error
 		fmt.Sprintf("<email>%s</email>", email) +
 		"</GetFTPUserName>"
 
-	fmt.Println(body)
-
 	data, err := a.Relay.CallEndpoint(ftpEndpoint, action, body)
 
 	if err != nil {
